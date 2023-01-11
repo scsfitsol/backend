@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "admin",
+    "password": "fXHQkT1staddadcsfsfsfCb54O6RoNR",
+    "database": "khelsfsfadadadsfnetStaging",
+    "host": "db-khelnet.addadada.ap-south-1.rds.amazonaws.com",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "root",
+    "password": "password",
+    "database": "fitsol",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "admin",
+    "password": "sfsfsfsfsfsf",
+    "database": "guddadadad",
+    "host": "ddadadadadadadmazonaws.com",
+    "dialect": "mysql"
+  }
+}
