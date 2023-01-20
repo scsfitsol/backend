@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const userService = require("./../modules/user/service");
+const userService = require("./../modules/driver/service");
 const adminService = require("./../modules/admin/service");
 
 exports.authMiddleware = async (req, res, next) => {

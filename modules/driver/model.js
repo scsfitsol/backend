@@ -1,8 +1,9 @@
 "use strict";
 const Sequelize = require("sequelize");
 const sequelize = require("../../config/db");
+const Admin = require("../admin/model");
 
-const Academy = sequelize.define(
+const Driver = sequelize.define(
   "driver",
   {
     id: {
@@ -15,23 +16,12 @@ const Academy = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false,
     },
-    email: {
-      type: Sequelize.STRING,
-      allowNull: false,
-      unique: true,
-      isEmail: true,
-    },
-    address: {
-      type: Sequelize.STRING,
-      allowNull: false,
-    },
-    profilePic: {
+    drivingLicense: {
       type: Sequelize.STRING,
     },
     mobile: {
       type: Sequelize.BIGINT,
       unique: true,
-      allowNull: false,
       validate: {
         not: {
           args: ["[a-z]", "i"],
@@ -43,28 +33,16 @@ const Academy = sequelize.define(
         },
       },
     },
-    description: {
-      type: Sequelize.TEXT,
-    },
-
-    sport: {
-      type: Sequelize.TEXT,
-      get: function () {
-        return this.getDataValue("sport")
-          ? JSON.parse(this.getDataValue("sport"))
-          : [];
-      },
-      set: function (val) {
-        return this.setDataValue("sport", JSON.stringify(val.split(",")));
-      },
-    },
   },
+
   {
     paranoid: true,
   }
 );
-
-// User.hasMany(Academy);
-// Academy.belongsTo(User);
-
-module.exports = Academy;
+Admin.hasMany(Driver, {
+  foreignKey: {
+    allowNull: false,
+  },
+});
+Driver.belongsTo(Admin);
+module.exports = Driver;

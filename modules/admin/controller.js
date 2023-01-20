@@ -46,7 +46,7 @@ exports.signup = async (req, res, next) => {
       data,
     });
   } catch (error) {
-    next(error);
+    next(error || createError(404, "Data not found"));
   }
 };
 
