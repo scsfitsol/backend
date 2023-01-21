@@ -6,6 +6,7 @@ exports.driverValidation = async (req, res, next) => {
     const driverSchema = yup.object().shape({
       name: yup.string().required("Name is required"),
       // drivingLicense: yup.string().required("Driver License is required field"),
+      allocate: yup.mixed(["true", "false"]),
       mobile: yup
         .string()
         .matches(phoneRegExp, " mobile no should be valid 10 digits")
@@ -26,8 +27,9 @@ exports.updateDriverValidation = async (req, res, next) => {
     const phoneRegExp =
       /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
     const driverSchema = yup.object().shape({
-      name: yup.string().required("Name is required"),
-      // drivingLicense: yup.string().required("Driver License is required field"),
+      name: yup.string(),
+      drivingLicense: yup.string(),
+      allocate: yup.mixed(["true", "false"]),
       mobile: yup
         .string()
         .matches(phoneRegExp, " mobile no should be valid 10 digits")

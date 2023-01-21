@@ -1,7 +1,8 @@
 "use strict";
 const Sequelize = require("sequelize");
 const sequelize = require("../../config/db");
-const VehicleType = require("../vehicleType/model");
+const Organization = require("../organization/model");
+const Transporter = require("../transporter/model");
 
 const Vehicle = sequelize.define(
   "vehicle",
@@ -16,13 +17,22 @@ const Vehicle = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false,
     },
-    make: {
+    engineType: {
       type: Sequelize.STRING,
+    },
+    capacity: {
+      type: Sequelize.INTEGER,
+    },
+    manufacture: {
+      type: Sequelize.STRING,
+    },
+    allocate: {
+      type: Sequelize.ENUM("true", "false"),
+      defaultValue: "false",
       allowNull: false,
     },
-    tonnage: {
+    fuelType: {
       type: Sequelize.STRING,
-      allowNull: false,
     },
   },
 
@@ -30,10 +40,14 @@ const Vehicle = sequelize.define(
     paranoid: true,
   }
 );
-VehicleType.hasMany(Vehicle, {
+
+Organization.hasMany(Vehicle, {
   foreignKey: {
     allowNull: false,
   },
 });
-Vehicle.belongsTo(VehicleType);
+Vehicle.belongsTo(Organization);
+Organization.hasMany(Vehicle);
+Vehicle.belongsTo(Transporter);
+Transporter.hasMany(Vehicle);
 module.exports = Vehicle;

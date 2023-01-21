@@ -1,10 +1,9 @@
 "use strict";
 const Sequelize = require("sequelize");
 const sequelize = require("../../config/db");
-const Admin = require("../admin/model");
 
-const VehicleType = sequelize.define(
-  "vehicleType",
+const Organization = sequelize.define(
+  "organization",
   {
     id: {
       type: Sequelize.INTEGER,
@@ -16,16 +15,11 @@ const VehicleType = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false,
     },
-    width: {
-      type: Sequelize.INTEGER,
-    },
-    capacity: {
-      type: Sequelize.INTEGER,
-    },
   },
 
   {
     paranoid: true,
   }
 );
-module.exports = VehicleType;
+
+module.exports = Organization;

@@ -1,7 +1,7 @@
 "use strict";
 const Sequelize = require("sequelize");
 const sequelize = require("../../config/db");
-const Admin = require("../admin/model");
+const Organization = require("../organization/model");
 
 const Driver = sequelize.define(
   "driver",
@@ -18,6 +18,12 @@ const Driver = sequelize.define(
     },
     drivingLicense: {
       type: Sequelize.STRING,
+      allowNull: false,
+    },
+    allocate: {
+      type: Sequelize.ENUM("true", "false"),
+      defaultValue: "false",
+      allowNull: false,
     },
     mobile: {
       type: Sequelize.BIGINT,
@@ -39,10 +45,10 @@ const Driver = sequelize.define(
     paranoid: true,
   }
 );
-Admin.hasMany(Driver, {
+Organization.hasMany(Driver, {
   foreignKey: {
     allowNull: false,
   },
 });
-Driver.belongsTo(Admin);
+Driver.belongsTo(Organization);
 module.exports = Driver;

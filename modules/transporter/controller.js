@@ -1,28 +1,12 @@
 const service = require("./service");
-//const userModel = require("../user/model");
 exports.create = async (req, res, next) => {
   try {
-    if (req.body.mobile) {
-      const [driverWithSamePhoneNo] = await service.get({
-        where: { mobile: req.body.mobile },
-      });
-      // driver with same phone number is  found.
-      if (driverWithSamePhoneNo) {
-        return res.status(400).json({
-          message: "This Phone Number is already register,try with another one",
-        });
-      }
-    }
-
     req.body.organizationId = req.requestor.organizationId;
-    if (req.file) {
-      req.body.drivingLicense = req.file.location;
-    }
     const data = await service.create(req.body);
 
     res.status(201).json({
       status: "success",
-      message: "Add Driver successfully",
+      message: "Add transporter successfully",
       data,
     });
   } catch (error) {
@@ -50,9 +34,7 @@ exports.get = async (req, res, next) => {
 exports.getAll = async (req, res, next) => {
   try {
     const data = await service.get({
-      where: {
-        organizationId: req.requestor.organizationId,
-      },
+      organizationId: req.requestor.organizationId,
     });
 
     res.status(200).send({
@@ -67,9 +49,7 @@ exports.getAll = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const id = req.params.id;
-    if (req.file) {
-      req.body.drivingLicense = req.file.location;
-    }
+
     const data = await service.update(req.body, {
       where: {
         id,
@@ -79,7 +59,7 @@ exports.update = async (req, res, next) => {
 
     res.status(203).send({
       status: "success",
-      message: "Edit driver successfully",
+      message: "Edit transporter successfully",
       data,
     });
   } catch (error) {
@@ -100,7 +80,7 @@ exports.remove = async (req, res, next) => {
 
     res.status(200).send({
       status: "success",
-      message: "delete driver successfully",
+      message: "delete transporter successfully",
       data,
     });
   } catch (error) {

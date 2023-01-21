@@ -4,8 +4,8 @@ const sequelize = require("../../config/db");
 const bcrypt = require("bcrypt");
 const Organization = require("../organization/model");
 
-const Admin = sequelize.define(
-  "admin",
+const Client = sequelize.define(
+  "client",
   {
     id: {
       type: Sequelize.INTEGER,
@@ -26,26 +26,24 @@ const Admin = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false,
     },
-    role: {
-      type: Sequelize.ENUM("admin", "superAdmin"),
-      defaultValue: "admin",
-      allowNull: false,
-    },
   },
   {
     hooks: {
-      beforeCreate: (Admin) => {
+      beforeCreate: (Organization) => {
         const salt = bcrypt.genSaltSync();
-        Admin.password = bcrypt.hashSync(Admin.password, salt);
+        Organization.password = bcrypt.hashSync(Organization.password, salt);
       },
     },
+  },
+
+  {
+    paranoid: true,
   }
 );
-
-// Admin.prototype.validPassword = async function (password) {
-//   return await bcrypt.compare(`${password}`, `${this.password}`);
-// };
-Organization.hasMany(Admin);
-Admin.belongsTo(Organization);
-
-module.exports = Admin;
+Organization.hasMany(Client, {
+  foreignKey: {
+    allowNull: false,
+  },
+});
+Client.belongsTo(Organization);
+module.exports = Client;

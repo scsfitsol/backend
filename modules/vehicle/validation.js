@@ -5,9 +5,12 @@ exports.vehicleValidation = async (req, res, next) => {
       registrationNumber: yup
         .string()
         .required("registration number is required"),
-      make: yup.string().required("make(o) is required field"),
-      tonnage: yup.string().required("tonnage(o)  is required field"),
-      vehicleTypeId: yup.number().required("vehicle type id is required field"),
+      engineType: yup.string(),
+      capacity: yup.string(),
+      manufacture: yup.string(),
+      allocate: yup.mixed(["true", "false"]),
+      fuelType: yup.string(),
+      transporterId: yup.number(),
     });
     await vehicleSchema.validate(req.body);
     next();
@@ -22,9 +25,12 @@ exports.updateVehicleValidation = async (req, res, next) => {
   try {
     const vehicleSchema = yup.object().shape({
       registrationNumber: yup.string(),
-      make: yup.string(),
-      tonnage: yup.string(),
-      vehicleTypeId: yup.number(),
+      engineType: yup.string(),
+      capacity: yup.string(),
+      manufacture: yup.string(),
+      allocate: yup.mixed(["true", "false"]),
+      fuelType: yup.string(),
+      transporterId: yup.number(),
     });
     await vehicleSchema.validate(req.body);
     next();
