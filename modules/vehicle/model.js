@@ -2,9 +2,10 @@
 const Sequelize = require("sequelize");
 const sequelize = require("../../config/db");
 const Organization = require("../organization/model");
+const Transporter = require("../transporter/model");
 
-const Driver = sequelize.define(
-  "driver",
+const Vehicle = sequelize.define(
+  "vehicle",
   {
     id: {
       type: Sequelize.INTEGER,
@@ -12,32 +13,26 @@ const Driver = sequelize.define(
       autoIncrement: true,
       primaryKey: true,
     },
-    name: {
+    registrationNumber: {
       type: Sequelize.STRING,
       allowNull: false,
     },
-    drivingLicense: {
+    engineType: {
       type: Sequelize.STRING,
-      allowNull: false,
+    },
+    capacity: {
+      type: Sequelize.INTEGER,
+    },
+    manufacture: {
+      type: Sequelize.STRING,
     },
     allocate: {
       type: Sequelize.ENUM("true", "false"),
       defaultValue: "false",
       allowNull: false,
     },
-    mobile: {
-      type: Sequelize.BIGINT,
-      unique: true,
-      validate: {
-        not: {
-          args: ["[a-z]", "i"],
-          msg: "Please enter a valid number",
-        },
-        len: {
-          args: [10, 10],
-          msg: "length of the phone number is 10",
-        },
-      },
+    fuelType: {
+      type: Sequelize.STRING,
     },
   },
 
@@ -45,10 +40,14 @@ const Driver = sequelize.define(
     paranoid: true,
   }
 );
-Organization.hasMany(Driver, {
+
+Organization.hasMany(Vehicle, {
   foreignKey: {
     allowNull: false,
   },
 });
-Driver.belongsTo(Organization);
-module.exports = Driver;
+Vehicle.belongsTo(Organization);
+Organization.hasMany(Vehicle);
+Vehicle.belongsTo(Transporter);
+Transporter.hasMany(Vehicle);
+module.exports = Vehicle;

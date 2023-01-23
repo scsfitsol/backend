@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
-const userService = require("./../modules/user/service");
 const adminService = require("./../modules/admin/service");
+const clientService = require("./../modules/client/service");
 
 exports.authMiddleware = async (req, res, next) => {
   if (req.headers.authorization == null)
@@ -20,32 +20,21 @@ exports.authMiddleware = async (req, res, next) => {
   try {
     const jwtUser = await jwt.verify(token, process.env.JWT_SECRETE);
     let requestor;
-    if (jwtUser.role === "Admin") {
+    if (jwtUser.role === "admin" || "superAdmin") {
       requestor = await adminService.get({
         where: {
           id: jwtUser.id,
         },
       });
-      requestor.role = "Admin";
     }
-    //  else if (jwtUser.role === "Coach") {
-    //   requestor = await userService.get({
-    //     where: {
-    //       id: jwtUser.id,
-    //     },
-    //   });
-    //   requestor.role = "Coach";
-    // }
-    else {
-      // console.log(jwtUser);
-      requestor = await userService.get({
+    if (jwtUser.role === "Client") {
+      requestor = await clientService.get({
         where: {
           id: jwtUser.id,
         },
       });
-      requestor.role = "User";
+      requestor.role = "Client";
     }
-
     if (!requestor) {
       res.status(401).json({
         status: "fail",

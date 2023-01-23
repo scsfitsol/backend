@@ -10,21 +10,26 @@ exports.login = async (req, res, next) => {
         email,
       },
     });
-    const correctPassword = await bcrypt.compare(password, admin.password);
-    if (admin && correctPassword) {
-      const token = jwt.sign(
-        { id: admin.id, role: "Admin" },
-        process.env.JWT_SECRETE,
-        {
-          expiresIn: process.env.JWT_EXPIREIN,
-        }
-      );
-
-      res.status(200).json({
-        status: "success",
-        message: "Admin login successfully",
-        token,
-      });
+    if (admin) {
+      const correctPassword = await bcrypt.compare(password, admin.password);
+      if (correctPassword) {
+        const token = jwt.sign(
+          {
+            id: admin.id,
+            role: admin.role,
+            organizationId: admin.organizationId,
+          },
+          process.env.JWT_SECRETE,
+          {
+            expiresIn: process.env.JWT_EXPIREIN,
+          }
+        );
+        res.status(200).json({
+          status: "success",
+          message: "Admin login successfully",
+          token,
+        });
+      }
     } else {
       res.status(401).json({
         status: "fail",
@@ -46,7 +51,7 @@ exports.signup = async (req, res, next) => {
       data,
     });
   } catch (error) {
-    next(error);
+    next(error || createError(404, "Data not found"));
   }
 };
 

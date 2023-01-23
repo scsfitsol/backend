@@ -8,8 +8,8 @@ exports.get = async (condition) => {
   return Driver.findAll(condition);
 };
 
-exports.update = async (id, data) => {
-  return Driver.update(data, { where: { id } });
+exports.update = async (data, condition) => {
+  return Driver.update(data, condition);
 };
 
 exports.remove = async (condition) => {

@@ -1,28 +1,14 @@
 const service = require("./service");
+const Organization = require("../organization/model");
 //const userModel = require("../user/model");
 exports.create = async (req, res, next) => {
   try {
-    if (req.body.mobile) {
-      const [driverWithSamePhoneNo] = await service.get({
-        where: { mobile: req.body.mobile },
-      });
-      // driver with same phone number is  found.
-      if (driverWithSamePhoneNo) {
-        return res.status(400).json({
-          message: "This Phone Number is already register,try with another one",
-        });
-      }
-    }
-
     req.body.organizationId = req.requestor.organizationId;
-    if (req.file) {
-      req.body.drivingLicense = req.file.location;
-    }
     const data = await service.create(req.body);
 
     res.status(201).json({
       status: "success",
-      message: "Add Driver successfully",
+      message: "Add Client successfully",
       data,
     });
   } catch (error) {
@@ -37,6 +23,11 @@ exports.get = async (req, res, next) => {
         id: req.params.id,
         organizationId: req.requestor.organizationId,
       },
+      include: [
+        {
+          model: Organization,
+        },
+      ],
     });
 
     res.status(200).send({
@@ -50,9 +41,7 @@ exports.get = async (req, res, next) => {
 exports.getAll = async (req, res, next) => {
   try {
     const data = await service.get({
-      where: {
-        organizationId: req.requestor.organizationId,
-      },
+      organizationId: req.requestor.organizationId,
     });
 
     res.status(200).send({
@@ -67,9 +56,7 @@ exports.getAll = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const id = req.params.id;
-    if (req.file) {
-      req.body.drivingLicense = req.file.location;
-    }
+
     const data = await service.update(req.body, {
       where: {
         id,
@@ -79,7 +66,7 @@ exports.update = async (req, res, next) => {
 
     res.status(203).send({
       status: "success",
-      message: "Edit driver successfully",
+      message: "Edit Client successfully",
       data,
     });
   } catch (error) {
@@ -100,7 +87,7 @@ exports.remove = async (req, res, next) => {
 
     res.status(200).send({
       status: "success",
-      message: "delete driver successfully",
+      message: "delete client successfully",
       data,
     });
   } catch (error) {
