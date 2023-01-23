@@ -5,16 +5,20 @@ exports.tripValidation = async (req, res, next) => {
       startDate: yup.string().required("Start date is required"),
       startTime: yup.string().required("start Time is required"),
       sourceLocation: yup.string().required("Source location is required"),
-      destinationLocation: yup.string().required("Source location is required"),
-      weight: yup.string().required("Source location is required"),
-      targetedDate: yup.string().required("Source location is required"),
-      targetedTime: yup.string().required("target time is required"),
-      completedTime: yup.string().required("completed time is required"),
+      destinationLocation: yup
+        .string()
+        .required("destination location is required"),
+      weight: yup.string().required("Weight is required"),
+      targetedDateAndTime: yup
+        .string()
+        .required("targetDateAndTime is required"),
+      completedDateAndTime: yup.string(),
       status: yup.mixed(["1", "2", "3"]),
       carbonEmitted: yup.string(),
       vehicleId: yup.number().required("vehicle id is required field"),
       driverId: yup.number().required("driver id is required field"),
       clientId: yup.number(),
+      transporterId: yup.number(),
     });
     await tripSchema.validate(req.body);
     next();
@@ -33,15 +37,15 @@ exports.updateTripValidation = async (req, res, next) => {
       sourceLocation: yup.string(),
       destinationLocation: yup.string(),
       weight: yup.string(),
-      targetedDate: yup.string(),
-      targetedTime: yup.string(),
-      completedTime: yup.string(),
-      status: yup.mixed(["pending", "ongoing", "completed"]),
+      targetedDateAndTime: yup.string(),
+      completedDateAndTime: yup.string(),
+      status: yup.mixed(["1", "2", "3"]),
       carbonEmitted: yup.string(),
       utilisation: yup.number(),
       vehicleId: yup.number(),
       driverId: yup.number(),
       clientId: yup.number(),
+      transporterId: yup.number(),
     });
     await tripSchema.validate(req.body);
     next();

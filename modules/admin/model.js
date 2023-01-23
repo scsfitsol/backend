@@ -31,6 +31,15 @@ const Admin = sequelize.define(
       defaultValue: "admin",
       allowNull: false,
     },
+    panCard: {
+      type: Sequelize.STRING,
+    },
+    aadharCard: {
+      type: Sequelize.STRING,
+    },
+    anyOtherCompanySpecificId: {
+      type: Sequelize.STRING,
+    },
   },
   {
     hooks: {
@@ -39,6 +48,9 @@ const Admin = sequelize.define(
         Admin.password = bcrypt.hashSync(Admin.password, salt);
       },
     },
+  },
+  {
+    alter: true,
   }
 );
 

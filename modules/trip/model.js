@@ -5,6 +5,7 @@ const Vehicle = require("../vehicle/model");
 const Driver = require("../driver/model");
 const Client = require("../client/model");
 const Organization = require("../organization/model");
+const Transporter = require("../transporter/model");
 
 const Trip = sequelize.define(
   "trip",
@@ -32,18 +33,14 @@ const Trip = sequelize.define(
       allowNull: false,
     },
     weight: {
+      type: Sequelize.FLOAT,
+      allowNull: false,
+    },
+    targetedDateAndTime: {
       type: Sequelize.DATE,
       allowNull: false,
     },
-    targetedDate: {
-      type: Sequelize.DATE,
-      allowNull: false,
-    },
-    targetedTime: {
-      type: Sequelize.TIME,
-      allowNull: false,
-    },
-    completedTime: {
+    completedDateAndTime: {
       type: Sequelize.DATE,
     },
     status: {
@@ -52,17 +49,18 @@ const Trip = sequelize.define(
       allowNull: false,
     },
     carbonEmitted: {
-      type: Sequelize.STRING,
+      type: Sequelize.FLOAT,
       default: 0,
     },
     utilisation: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
       allowNull: false,
     },
   },
 
   {
     paranoid: true,
+    alter: true,
   }
 );
 Driver.hasMany(Trip, {
@@ -85,4 +83,6 @@ Vehicle.hasMany(Trip, {
 Trip.belongsTo(Vehicle);
 Client.hasMany(Trip);
 Trip.belongsTo(Client);
+Transporter.hasMany(Trip);
+Trip.belongsTo(Transporter);
 module.exports = Trip;

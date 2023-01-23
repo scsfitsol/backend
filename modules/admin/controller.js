@@ -43,6 +43,30 @@ exports.login = async (req, res, next) => {
 
 exports.signup = async (req, res, next) => {
   try {
+    const [adminWithSameEmail] = await service.get({
+      where: {
+        email: req.body.email,
+      },
+    });
+
+    // user with email is  found.
+    if (adminWithSameEmail) {
+      return res.status(400).json({
+        message: "This email is already register,try with another one",
+      });
+    }
+    if (req.files) {
+      if (req.files["panCard"][0]) {
+        req.body.panCard = req.files["panCard"][0]["location"];
+      }
+      if (req.files["aadharCard"][0]) {
+        req.body.aadharCard = req.files["aadharCard"][0]["location"];
+      }
+      if (req.files["anyOtherCompanySpecificId"][0]) {
+        req.body.anyOtherCompanySpecificId =
+          req.files["anyOtherCompanySpecificId"][0]["location"];
+      }
+    }
     const data = await service.create(req.body);
 
     res.status(200).send({

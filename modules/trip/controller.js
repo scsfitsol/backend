@@ -3,6 +3,7 @@ const Driver = require("../driver/model");
 const Client = require("../client/model");
 const Vehicle = require("../vehicle/model");
 const Organization = require("../organization/model");
+const { sqquery, usersqquery } = require("../../utils/query");
 exports.create = async (req, res, next) => {
   try {
     req.body.organizationId = req.requestor.organizationId;
@@ -62,6 +63,7 @@ exports.getAll = async (req, res, next) => {
   try {
     const data = await service.get({
       organizationId: req.requestor.organizationId,
+      ...sqquery(req.query),
     });
 
     res.status(200).send({
