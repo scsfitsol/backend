@@ -2,6 +2,8 @@ const service = require("./service");
 const Organization = require("../organization/model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { v4: uuidv4 } = require("uuid");
+const { sendEmail } = require("../../utils/sendEmail");
 //const userModel = require("../user/model");
 exports.create = async (req, res, next) => {
   try {
@@ -137,7 +139,7 @@ exports.login = async (req, res, next) => {
 exports.forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
-    const [user] = await userService.get({ where: { email } });
+    const [user] = await service.get({ where: { email } });
 
     if (!user)
       return next(
@@ -155,7 +157,7 @@ exports.forgotPassword = async (req, res, next) => {
     // Send an email with the token(plain) to client
     const resetURL = `${req.protocol}s://${req.get(
       "host"
-    )}/api/v1/users/reset/password/${user.passResetToken}`;
+    )}/api/v1/client/reset/password/${user.passResetToken}`;
     console.log(resetURL);
 
     const isEmailSent = await sendEmail({
@@ -266,7 +268,7 @@ exports.resetPassword = async (req, res, next) => {
     console.log(passResetToken);
 
     // Find the user by the encrypted token
-    const [user] = await userService.get({
+    const [user] = await service.get({
       where: { passResetToken },
     });
 

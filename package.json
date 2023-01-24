@@ -28,6 +28,7 @@
     "mysql2": "^2.3.3",
     "sequelize": "^6.21.4",
     "socket.io": "^4.5.2",
+    "uuidv4": "^6.2.13",
     "yup": "^0.32.11"
   },
   "description": "kehlnet",

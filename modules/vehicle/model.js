@@ -34,6 +34,9 @@ const Vehicle = sequelize.define(
     fuelType: {
       type: Sequelize.STRING,
     },
+    mileage: {
+      type: Sequelize.FLOAT,
+    },
   },
 
   {
