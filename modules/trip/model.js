@@ -48,13 +48,20 @@ const Trip = sequelize.define(
       defaultValue: "1",
       allowNull: false,
     },
-    carbonEmitted: {
+    carbonEmission: {
       type: Sequelize.FLOAT,
       default: 0,
     },
     utilisation: {
       type: Sequelize.FLOAT,
+      default: 0,
       allowNull: false,
+    },
+    distanceOfTrip: {
+      type: Sequelize.FLOAT,
+    },
+    fuelUserd: {
+      type: Sequelize.FLOAT,
     },
   },
 

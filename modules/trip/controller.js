@@ -10,9 +10,10 @@ exports.create = async (req, res, next) => {
     const [vehicleData] = await Vehicle.findAll({
       where: {
         id: req.body.vehicleId,
-        organizationId: req.body.organizationId,
+        organizationId: req.requestor.organizationId,
       },
     });
+
     if (vehicleData?.capacity) {
       req.body.utilisation = (req.body.weight / vehicleData?.capacity) * 100;
     }
@@ -96,6 +97,7 @@ exports.update = async (req, res, next) => {
 };
 exports.updateTripStatus = async (req, res, next) => {
   try {
+    let carbonEmission = 0;
     if (req.body.status == "2") {
       const vehicleData = await Vehicle.update(
         { allocate: "true" },
@@ -117,15 +119,6 @@ exports.updateTripStatus = async (req, res, next) => {
       );
     }
     if (req.body.status == "3") {
-      const vehicleData = await Vehicle.update(
-        { allocate: "false" },
-        {
-          where: {
-            id: req.body.vehicleId,
-            organizationId: req.requestor.organizationId,
-          },
-        }
-      );
       const driverData = await Driver.update(
         { allocate: "false" },
         {
@@ -135,9 +128,28 @@ exports.updateTripStatus = async (req, res, next) => {
           },
         }
       );
+
+      const [vehicleData] = await Vehicle.findAll({
+        where: {
+          id: req.body.vehicleId,
+          organizationId: req.requestor.organizationId,
+        },
+      });
+      vehicleData.allocate = "false";
+      await vehicleData.save();
+
+      const [tripData] = await service.get({
+        id: req.params.id,
+        organizationId: req.requestor.organizationId,
+      });
+      carbonEmission =
+        vehicleData?.mileage *
+          tripData?.distanceOfTrip *
+          tripData?.fuelUserd *
+          2.7 || 0;
     }
     const id = req.params.id;
-
+    req.body.carbonEmission = carbonEmission;
     const data = await service.update(req.body, {
       where: {
         id,
