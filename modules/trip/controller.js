@@ -3,14 +3,16 @@ const Driver = require("../driver/model");
 const Client = require("../client/model");
 const Vehicle = require("../vehicle/model");
 const Organization = require("../organization/model");
-const { sqquery, usersqquery } = require("../../utils/query");
+const { sqquery } = require("../../utils/query");
 exports.create = async (req, res, next) => {
   try {
-    req.body.organizationId = req.requestor.organizationId;
+    req.body.organizationId =
+      req?.requestor?.organizationId || req?.query?.organizationId;
     const [vehicleData] = await Vehicle.findAll({
       where: {
         id: req.body.vehicleId,
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
       },
     });
 
@@ -34,7 +36,8 @@ exports.get = async (req, res, next) => {
     const data = await service.get({
       where: {
         id: req.params.id,
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
       },
       include: [
         {
@@ -63,7 +66,8 @@ exports.get = async (req, res, next) => {
 exports.getAll = async (req, res, next) => {
   try {
     const data = await service.get({
-      organizationId: req.requestor.organizationId,
+      organizationId:
+        req?.requestor?.organizationId || req?.query?.organizationId,
       ...sqquery(req.query),
     });
 
@@ -82,7 +86,8 @@ exports.update = async (req, res, next) => {
     const data = await service.update(req.body, {
       where: {
         id,
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
       },
     });
 
@@ -104,7 +109,8 @@ exports.updateTripStatus = async (req, res, next) => {
         {
           where: {
             id: req.body.vehicleId,
-            organizationId: req.requestor.organizationId,
+            organizationId:
+              req?.requestor?.organizationId || req?.query?.organizationId,
           },
         }
       );
@@ -113,7 +119,8 @@ exports.updateTripStatus = async (req, res, next) => {
         {
           where: {
             id: req.body.driverId,
-            organizationId: req.requestor.organizationId,
+            organizationId:
+              req?.requestor?.organizationId || req?.query?.organizationId,
           },
         }
       );
@@ -124,7 +131,8 @@ exports.updateTripStatus = async (req, res, next) => {
         {
           where: {
             id: req.body.driverId,
-            organizationId: req.requestor.organizationId,
+            organizationId:
+              req?.requestor?.organizationId || req?.query?.organizationId,
           },
         }
       );
@@ -132,7 +140,8 @@ exports.updateTripStatus = async (req, res, next) => {
       const [vehicleData] = await Vehicle.findAll({
         where: {
           id: req.body.vehicleId,
-          organizationId: req.requestor.organizationId,
+          organizationId:
+            req?.requestor?.organizationId || req?.query?.organizationId,
         },
       });
       vehicleData.allocate = "false";
@@ -140,7 +149,8 @@ exports.updateTripStatus = async (req, res, next) => {
 
       const [tripData] = await service.get({
         id: req.params.id,
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
       });
       carbonEmission =
         vehicleData?.mileage *
@@ -153,7 +163,8 @@ exports.updateTripStatus = async (req, res, next) => {
     const data = await service.update(req.body, {
       where: {
         id,
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
       },
     });
 
@@ -173,7 +184,8 @@ exports.remove = async (req, res, next) => {
     const data = await service.remove({
       where: {
         id,
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
       },
     });
 

@@ -27,13 +27,13 @@ exports.authMiddleware = async (req, res, next) => {
         },
       });
     }
-    if (jwtUser.role === "Client") {
+    if (jwtUser.role === "client") {
       requestor = await clientService.get({
         where: {
           id: jwtUser.id,
         },
       });
-      requestor.role = "Client";
+      requestor.role = "client";
     }
     if (!requestor) {
       res.status(401).json({
@@ -41,7 +41,6 @@ exports.authMiddleware = async (req, res, next) => {
         message: "User not found",
       });
     } else {
-      // console.log(requestor);
       req.requestor = requestor[0];
       next();
     }

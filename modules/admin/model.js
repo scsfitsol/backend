@@ -48,9 +48,6 @@ const Admin = sequelize.define(
         Admin.password = bcrypt.hashSync(Admin.password, salt);
       },
     },
-  },
-  {
-    alter: true,
   }
 );
 

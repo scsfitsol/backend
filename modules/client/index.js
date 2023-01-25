@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const upload = require("../../utils/fileUploads");
+const auth = require("../../middleware/auth");
 
 const {
   create,
@@ -10,6 +11,7 @@ const {
   getAll,
   login,
   forgotPassword,
+  resetPassword,
 } = require("./controller");
 const {
   clientValidation,
@@ -18,9 +20,18 @@ const {
   forgotPasswordValidation,
 } = require("./validation");
 
-router.route("/").post(clientValidation, create).get(getAll);
+router
+  .route("/")
+  .post(
+    clientValidation,
+    auth.authMiddleware,
+    auth.restrictTo("admin", "superAdmin"),
+    create
+  )
+  .get(getAll);
 router.post("/login", loginValidation, login);
 router.post("/forgotPassword", forgotPasswordValidation, forgotPassword);
+router.post("/resetPassword/:token", resetPassword);
 router
   .route("/:id")
   .get(get)
