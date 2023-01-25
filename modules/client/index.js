@@ -25,12 +25,7 @@ router
   .post(clientValidation, auth.restrictTo("admin", "superAdmin"), create)
   .get(getAll);
 router.post("/login", loginValidation, login);
-router.post(
-  "/forgotPassword",
-  forgotPasswordValidation,
-  auth.restrictTo("client"),
-  forgotPassword
-);
+router.post("/forgotPassword", forgotPasswordValidation, forgotPassword);
 router.post("/resetPassword", resetPassword);
 router
   .route("/:id")

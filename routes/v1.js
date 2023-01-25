@@ -28,12 +28,7 @@ router.use(
   auth.restrictTo("superAdmin"),
   require("../modules/organization")
 );
-router.use(
-  "/client",
-  auth.authMiddleware,
-  auth.restrictTo("admin", "superAdmin", "client"),
-  require("../modules/client")
-);
+router.use("/client", require("../modules/client"));
 router.use(
   "/transporter",
   auth.authMiddleware,
