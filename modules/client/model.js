@@ -26,6 +26,12 @@ const Client = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false,
     },
+    passResetToken: {
+      type: Sequelize.STRING,
+    },
+    passResetTokenExpiresIn: {
+      type: Sequelize.BIGINT,
+    },
   },
   {
     hooks: {

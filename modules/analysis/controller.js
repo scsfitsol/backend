@@ -12,45 +12,53 @@ exports.getAll = async (req, res, next) => {
   try {
     const driver = await Driver.count({
       where: {
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
       },
     });
     const client = await Client.count({
       where: {
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
       },
     });
     const plant = await Plant.count({
       where: {
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
       },
     });
     const vehicle = await Vehicle.count({
       where: {
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
       },
     });
     const allocatedVehicle = await Vehicle.count({
       where: {
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
         allocate: true,
       },
     });
     const freeVehicle = await Vehicle.count({
       where: {
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
         allocate: false,
       },
     });
 
     const totalTrip = await Trip.count({
       where: {
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
       },
     });
     const totalOnTimeTrip = await Trip.count({
       where: {
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
         targetedDateAndTime: {
           [Op.eq]: Sequelize.col("completedDateAndTime"),
         },
@@ -59,7 +67,8 @@ exports.getAll = async (req, res, next) => {
 
     const totalLateTrip = await Trip.count({
       where: {
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
         targetedDateAndTime: {
           [Op.lt]: Sequelize.col("completedDateAndTime"),
         },
@@ -67,7 +76,8 @@ exports.getAll = async (req, res, next) => {
     });
     const totalEarlyTrip = await Trip.count({
       where: {
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
         targetedDateAndTime: {
           [Op.gt]: Sequelize.col("completedDateAndTime"),
         },
@@ -75,12 +85,14 @@ exports.getAll = async (req, res, next) => {
     });
     const transporter = await Transporter.count({
       where: {
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
       },
     });
     const listOfTransporter = await Trip.findAll({
       where: {
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
       },
       group: ["transporterId"],
       include: [
@@ -98,11 +110,10 @@ exports.getAll = async (req, res, next) => {
     const getTransporterTripDetail = (data) =>
       new Promise(async (resolve, reject) => {
         try {
-          console.log("data2------>", data);
-          console.log("count2------>", data.count);
           const EarlyTransporterTrip = await Trip.count({
             where: {
-              organizationId: req.requestor.organizationId,
+              organizationId:
+                req?.requestor?.organizationId || req?.query?.organizationId,
               transporterId: data.id,
               targetedDateAndTime: {
                 [Op.lt]: Sequelize.col("completedDateAndTime"),
@@ -111,7 +122,8 @@ exports.getAll = async (req, res, next) => {
           });
           const LateTransporterTrip = await Trip.count({
             where: {
-              organizationId: req.requestor.organizationId,
+              organizationId:
+                req?.requestor?.organizationId || req?.query?.organizationId,
               transporterId: data.id,
               targetedDateAndTime: {
                 [Op.gt]: Sequelize.col("completedDateAndTime"),
@@ -120,7 +132,8 @@ exports.getAll = async (req, res, next) => {
           });
           const EqualTransporterTrip = await Trip.count({
             where: {
-              organizationId: req.requestor.organizationId,
+              organizationId:
+                req?.requestor?.organizationId || req?.query?.organizationId,
               transporterId: data.id,
               targetedDateAndTime: {
                 [Op.eq]: Sequelize.col("completedDateAndTime"),

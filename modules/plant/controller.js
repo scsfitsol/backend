@@ -1,7 +1,8 @@
 const service = require("./service");
 exports.create = async (req, res, next) => {
   try {
-    req.body.organizationId = req.requestor.organizationId;
+    req.body.organizationId =
+      req?.requestor?.organizationId || req?.query?.organizationId;
     const data = await service.create(req.body);
 
     res.status(201).json({
@@ -19,7 +20,8 @@ exports.get = async (req, res, next) => {
     const data = await service.get({
       where: {
         id: req.params.id,
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
       },
     });
 
@@ -34,7 +36,8 @@ exports.get = async (req, res, next) => {
 exports.getAll = async (req, res, next) => {
   try {
     const data = await service.get({
-      organizationId: req.requestor.organizationId,
+      organizationId:
+        req?.requestor?.organizationId || req?.query?.organizationId,
     });
 
     res.status(200).send({
@@ -53,7 +56,8 @@ exports.update = async (req, res, next) => {
     const data = await service.update(req.body, {
       where: {
         id,
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
       },
     });
 
@@ -74,7 +78,8 @@ exports.remove = async (req, res, next) => {
     const data = await service.remove({
       where: {
         id,
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
       },
     });
 

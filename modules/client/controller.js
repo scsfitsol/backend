@@ -3,11 +3,12 @@ const Organization = require("../organization/model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
-const { sendEmail } = require("../../utils/sendEmail");
+const { sendEmail } = require("../../utils/email");
 //const userModel = require("../user/model");
 exports.create = async (req, res, next) => {
   try {
-    req.body.organizationId = req.requestor.organizationId;
+    req.body.organizationId =
+      req?.requestor?.organizationId || req?.query?.organizationId;
     const data = await service.create(req.body);
 
     res.status(201).json({
@@ -25,7 +26,8 @@ exports.get = async (req, res, next) => {
     const data = await service.get({
       where: {
         id: req.params.id,
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
       },
       include: [
         {
@@ -45,7 +47,8 @@ exports.get = async (req, res, next) => {
 exports.getAll = async (req, res, next) => {
   try {
     const data = await service.get({
-      organizationId: req.requestor.organizationId,
+      organizationId:
+        req?.requestor?.organizationId || req?.query?.organizationId,
     });
 
     res.status(200).send({
@@ -64,7 +67,8 @@ exports.update = async (req, res, next) => {
     const data = await service.update(req.body, {
       where: {
         id,
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
       },
     });
 
@@ -85,7 +89,8 @@ exports.remove = async (req, res, next) => {
     const data = await service.remove({
       where: {
         id,
-        organizationId: req.requestor.organizationId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
       },
     });
 
@@ -112,7 +117,7 @@ exports.login = async (req, res, next) => {
         const token = jwt.sign(
           {
             id: admin.id,
-            role: admin.role,
+            role: "client",
             organizationId: admin.organizationId,
           },
           process.env.JWT_SECRETE,
@@ -136,38 +141,39 @@ exports.login = async (req, res, next) => {
     next(error);
   }
 };
+
 exports.forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
-    const [user] = await service.get({ where: { email } });
+    const [client] = await service.get({ where: { email } });
+    console.log("client---->", client.id);
+    if (!client)
+      return res.status(400).json({
+        status: "fail",
+        message: "user not found",
+      });
+    client.passResetToken = uuidv4();
 
-    if (!user)
-      return next(
-        new createError(404, `No user found with the email ${req.body.email}`)
-      );
-
-    user.passResetToken = uuidv4();
-
-    console.log(1, user.passResetToken);
+    console.log(1, client.passResetToken);
 
     // Set passResetTokenExpiresIn
-    user.passResetTokenExpiresIn = Date.now() + 2 * 60 * 1000; //min to ms
+    client.passResetTokenExpiresIn = Date.now() + 2 * 60 * 1000; //min to ms
+    console.log(2, client.passResetTokenExpiresIn);
 
-    await user.save({ hooks: false });
+    await client.save({ hooks: false });
     // Send an email with the token(plain) to client
-    const resetURL = `${req.protocol}s://${req.get(
-      "host"
-    )}/api/v1/client/reset/password/${user.passResetToken}`;
-    console.log(resetURL);
+    const resetURL = `https://${req.get("host")}/api/v1/client/resetPassword/${
+      client.passResetToken
+    }`;
+    console.log("resetURL----->", resetURL);
 
     const isEmailSent = await sendEmail({
-      recipientEmails: [user.email],
+      recipientEmails: [client.email],
       subject: "Your password reset token (valid for 2 min)",
-      html: `
-<!DOCTYPE html>
+      html: `<!DOCTYPE html>
 <html>    
 <head>    
-    <title>Universiti</title>    
+    <title>SERVED</title>    
     <style>
     body  
 {  
@@ -254,10 +260,15 @@ a{
       message: "Token sent to email!",
       resetURL,
     });
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    console.log("error--->", error);
+    res.status(400).json({
+      status: "fail",
+      message: error,
+    });
   }
 };
+
 exports.resetPassword = async (req, res, next) => {
   try {
     console.log("test");
@@ -268,33 +279,36 @@ exports.resetPassword = async (req, res, next) => {
     console.log(passResetToken);
 
     // Find the user by the encrypted token
-    const [user] = await service.get({
+    const client = await client.findOne({
       where: { passResetToken },
     });
 
     // Check if the user is found and token is not expired
-    if (!user || Date.now() > user.passResetTokenExpiresIn)
-      return next(
-        new createError(
-          400,
-          "Token is invalid or expired! Do forgot password again"
-        )
-      );
+    if (!client || Date.now() > client.passResetTokenExpiresIn)
+      return res.status(400).json({
+        status: "fail",
+        message: "Token is invalid or expired! Do forgot password again",
+      });
 
     // If all ok, reset password & distroy the token
-    user.password = req.body.newPassword;
-    user.passResetToken = undefined;
-    user.passResetTokenExpiresIn = undefined;
+    const salt = bcrypt.genSaltSync();
+    newPassword = bcrypt.hashSync(req.body.newPassword, salt);
+    client.password = newPassword;
+    client.passResetToken = undefined;
+    client.passResetTokenExpiresIn = undefined;
 
-    await user.save();
+    await client.save();
 
     // res.status(200).json({
     //   status: "success",
     //   message:
     //     "Password changed successfully. Now you can login with the new password",
     // });
-    res.redirect("https://market.universiti.com/");
-  } catch (err) {
-    next(err);
+    res.redirect("https://client.servdapp.com/login");
+  } catch (error) {
+    res.status(400).json({
+      status: "fail",
+      message: error,
+    });
   }
 };

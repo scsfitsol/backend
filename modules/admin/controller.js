@@ -17,7 +17,7 @@ exports.login = async (req, res, next) => {
           {
             id: admin.id,
             role: admin.role,
-            organizationId: admin.organizationId,
+            organizationId: admin?.organizationId,
           },
           process.env.JWT_SECRETE,
           {
