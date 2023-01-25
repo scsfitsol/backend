@@ -22,11 +22,16 @@ const {
 
 router
   .route("/")
-  .post(clientValidation, auth.restrictTo("admin", "superAdmin"), create)
+  .post(
+    clientValidation,
+    auth.authMiddleware,
+    auth.restrictTo("admin", "superAdmin"),
+    create
+  )
   .get(getAll);
 router.post("/login", loginValidation, login);
 router.post("/forgotPassword", forgotPasswordValidation, forgotPassword);
-router.post("/resetPassword", resetPassword);
+router.post("/resetPassword/:token", resetPassword);
 router
   .route("/:id")
   .get(get)

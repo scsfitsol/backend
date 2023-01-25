@@ -1,4 +1,5 @@
 const service = require("./service");
+const { sqquery } = require("../../utils/query");
 //const userModel = require("../user/model");
 exports.create = async (req, res, next) => {
   try {
@@ -52,10 +53,9 @@ exports.get = async (req, res, next) => {
 exports.getAll = async (req, res, next) => {
   try {
     const data = await service.get({
-      where: {
-        organizationId:
-          req?.requestor?.organizationId || req?.query?.organizationId,
-      },
+      organizationId:
+        req?.requestor?.organizationId || req?.query?.organizationId,
+      ...sqquery(req.query),
     });
 
     res.status(200).send({
@@ -63,6 +63,7 @@ exports.getAll = async (req, res, next) => {
       data,
     });
   } catch (error) {
+    console.log("error----->", error);
     next(error);
   }
 };

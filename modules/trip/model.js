@@ -6,6 +6,7 @@ const Driver = require("../driver/model");
 const Client = require("../client/model");
 const Organization = require("../organization/model");
 const Transporter = require("../transporter/model");
+const Plant = require("../plant/model");
 
 const Trip = sequelize.define(
   "trip",
@@ -50,11 +51,11 @@ const Trip = sequelize.define(
     },
     carbonEmission: {
       type: Sequelize.FLOAT,
-      default: 0,
+      defaultValue: 0,
     },
     utilisation: {
       type: Sequelize.FLOAT,
-      default: 0,
+      defaultValue: 0,
       allowNull: false,
     },
     distanceOfTrip: {
@@ -63,10 +64,17 @@ const Trip = sequelize.define(
     fuelUserd: {
       type: Sequelize.FLOAT,
     },
+    driverRating: {
+      type: Sequelize.FLOAT,
+    },
+    vehicleRating: {
+      type: Sequelize.FLOAT,
+    },
   },
 
   {
     paranoid: true,
+    alter: true,
   }
 );
 Driver.hasMany(Trip, {
@@ -91,4 +99,6 @@ Client.hasMany(Trip);
 Trip.belongsTo(Client);
 Transporter.hasMany(Trip);
 Trip.belongsTo(Transporter);
+Plant.hasMany(Trip);
+Trip.belongsTo(Plant);
 module.exports = Trip;

@@ -1,4 +1,5 @@
 const service = require("./service");
+const { sqquery } = require("../../utils/query");
 exports.create = async (req, res, next) => {
   try {
     req.body.organizationId =
@@ -38,6 +39,7 @@ exports.getAll = async (req, res, next) => {
     const data = await service.get({
       organizationId:
         req?.requestor?.organizationId || req?.query?.organizationId,
+      ...sqquery(req.query),
     });
 
     res.status(200).send({

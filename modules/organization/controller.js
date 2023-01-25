@@ -1,4 +1,5 @@
 const service = require("./service");
+const { sqquery } = require("../../utils/query");
 const adminModel = require("../admin/model");
 //const userModel = require("../user/model");
 exports.create = async (req, res, next) => {
@@ -39,7 +40,9 @@ exports.get = async (req, res, next) => {
 };
 exports.getAll = async (req, res, next) => {
   try {
-    const data = await service.get();
+    const data = await service.get({
+      ...sqquery(req.query),
+    });
 
     res.status(200).send({
       status: "success",

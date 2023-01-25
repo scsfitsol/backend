@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
 const { sendEmail } = require("../../utils/email");
+const { sqquery } = require("../../utils/query");
 //const userModel = require("../user/model");
 exports.create = async (req, res, next) => {
   try {
@@ -49,6 +50,7 @@ exports.getAll = async (req, res, next) => {
     const data = await service.get({
       organizationId:
         req?.requestor?.organizationId || req?.query?.organizationId,
+      ...sqquery(req.query),
     });
 
     res.status(200).send({
@@ -113,7 +115,7 @@ exports.login = async (req, res, next) => {
     });
     if (admin) {
       const correctPassword = await bcrypt.compare(password, admin.password);
-      if (correctPassword) {
+      if (correctPassword == true) {
         const token = jwt.sign(
           {
             id: admin.id,
@@ -129,6 +131,12 @@ exports.login = async (req, res, next) => {
           status: "success",
           message: "client login successfully",
           token,
+        });
+      } else {
+        console.log("in else");
+        res.status(401).json({
+          status: "fail",
+          message: "Admin login fail bcz id and password doesn't match",
         });
       }
     } else {
@@ -162,7 +170,7 @@ exports.forgotPassword = async (req, res, next) => {
 
     await client.save({ hooks: false });
     // Send an email with the token(plain) to client
-    const resetURL = `https://${req.get("host")}/api/v1/client/resetPassword/${
+    const resetURL = `http://${req.get("host")}/api/v1/client/resetPassword/${
       client.passResetToken
     }`;
     console.log("resetURL----->", resetURL);
@@ -279,7 +287,7 @@ exports.resetPassword = async (req, res, next) => {
     console.log(passResetToken);
 
     // Find the user by the encrypted token
-    const client = await client.findOne({
+    const [client] = await service.get({
       where: { passResetToken },
     });
 
@@ -292,20 +300,23 @@ exports.resetPassword = async (req, res, next) => {
 
     // If all ok, reset password & distroy the token
     const salt = bcrypt.genSaltSync();
+    console.log("new password------>", req.body.newPassword);
     newPassword = bcrypt.hashSync(req.body.newPassword, salt);
     client.password = newPassword;
+    console.log("new password------>", newPassword);
     client.passResetToken = undefined;
     client.passResetTokenExpiresIn = undefined;
 
     await client.save();
 
-    // res.status(200).json({
-    //   status: "success",
-    //   message:
-    //     "Password changed successfully. Now you can login with the new password",
-    // });
-    res.redirect("https://client.servdapp.com/login");
+    res.status(200).json({
+      status: "success",
+      message:
+        "Password changed successfully. Now you can login with the new password",
+    });
+    // res.redirect("https://client.servdapp.com/login");
   } catch (error) {
+    console.log("error-------->", error);
     res.status(400).json({
       status: "fail",
       message: error,
