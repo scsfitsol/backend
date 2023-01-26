@@ -69,6 +69,20 @@ exports.getAll = async (req, res, next) => {
       organizationId:
         req?.requestor?.organizationId || req?.query?.organizationId,
       ...sqquery(req.query),
+      include: [
+        {
+          model: Organization,
+        },
+        {
+          model: Driver,
+        },
+        {
+          model: Vehicle,
+        },
+        {
+          model: Client,
+        },
+      ],
     });
 
     res.status(200).send({
