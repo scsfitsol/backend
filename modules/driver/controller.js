@@ -1,5 +1,6 @@
 const service = require("./service");
 const { sqquery } = require("../../utils/query");
+const Organization = require("../organization/model");
 //const userModel = require("../user/model");
 exports.create = async (req, res, next) => {
   try {
@@ -40,6 +41,7 @@ exports.get = async (req, res, next) => {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
       },
+      include: [Organization],
     });
 
     res.status(200).send({
@@ -56,6 +58,7 @@ exports.getAll = async (req, res, next) => {
       organizationId:
         req?.requestor?.organizationId || req?.query?.organizationId,
       ...sqquery(req.query),
+      include: [Organization],
     });
 
     res.status(200).send({
