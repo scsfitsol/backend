@@ -5,7 +5,8 @@ const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
 const { sendEmail } = require("../../utils/email");
 const { sqquery } = require("../../utils/query");
-//const userModel = require("../user/model");
+var createError = require("http-errors");
+
 exports.create = async (req, res, next) => {
   try {
     req.body.organizationId =
@@ -138,17 +139,17 @@ exports.login = async (req, res, next) => {
           token,
         });
       } else {
-        console.log("in else");
-        res.status(401).json({
-          status: "fail",
-          message: "Admin login fail bcz id and password doesn't match",
-        });
+        next(
+          createError(
+            401,
+            "Client login fail bcz id and password doesn't match"
+          )
+        );
       }
     } else {
-      res.status(401).json({
-        status: "fail",
-        message: "Admin login fail bcz id and password doesn't match",
-      });
+      next(
+        createError(401, "Client login fail bcz id and password doesn't match")
+      );
     }
   } catch (error) {
     next(error);
@@ -159,7 +160,6 @@ exports.forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
     const [client] = await service.get({ where: { email } });
-    console.log("client---->", client.id);
     if (!client)
       return res.status(400).json({
         status: "fail",
@@ -178,8 +178,6 @@ exports.forgotPassword = async (req, res, next) => {
     const resetURL = `http://${req.get("host")}/api/v1/client/resetPassword/${
       client.passResetToken
     }`;
-    console.log("resetURL----->", resetURL);
-
     const isEmailSent = await sendEmail({
       recipientEmails: [client.email],
       subject: "Your password reset token (valid for 2 min)",
@@ -265,28 +263,18 @@ a{
 </body>    
 </html> `,
     });
-
-    console.log("Is email sent ", isEmailSent);
-
     res.status(200).json({
       status: "success",
       message: "Token sent to email!",
       resetURL,
     });
   } catch (error) {
-    console.log("error--->", error);
-    res.status(400).json({
-      status: "fail",
-      message: error,
-    });
+    next(error);
   }
 };
 
 exports.resetPassword = async (req, res, next) => {
   try {
-    console.log("test");
-    console.log(req.body);
-
     const passResetToken = req.params.token;
 
     console.log(passResetToken);
@@ -305,10 +293,8 @@ exports.resetPassword = async (req, res, next) => {
 
     // If all ok, reset password & distroy the token
     const salt = bcrypt.genSaltSync();
-    console.log("new password------>", req.body.newPassword);
     newPassword = bcrypt.hashSync(req.body.newPassword, salt);
     client.password = newPassword;
-    console.log("new password------>", newPassword);
     client.passResetToken = undefined;
     client.passResetTokenExpiresIn = undefined;
 
@@ -321,10 +307,6 @@ exports.resetPassword = async (req, res, next) => {
     });
     // res.redirect("https://client.servdapp.com/login");
   } catch (error) {
-    console.log("error-------->", error);
-    res.status(400).json({
-      status: "fail",
-      message: error,
-    });
+    next(error);
   }
 };

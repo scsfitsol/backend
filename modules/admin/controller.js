@@ -1,6 +1,7 @@
 const service = require("./service");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+var createError = require("http-errors");
 
 exports.login = async (req, res, next) => {
   try {
@@ -29,12 +30,15 @@ exports.login = async (req, res, next) => {
           message: "Admin login successfully",
           token,
         });
+      } else {
+        next(
+          createError(401, "Admin login fail bcz id and password doesn't match")
+        );
       }
     } else {
-      res.status(401).json({
-        status: "fail",
-        message: "Admin login fail bcz id and password doesn't match",
-      });
+      next(
+        new Error("Admin login fail bcz id and password doesn't match", 401)
+      );
     }
   } catch (error) {
     next(error);
@@ -90,6 +94,19 @@ exports.getMe = async (req, res, next) => {
     res.status(200).send({
       status: 200,
       message: "getMe successfully",
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+exports.getAll = async (req, res, next) => {
+  try {
+    const data = await service.get();
+
+    res.status(200).send({
+      status: 200,
+      message: "getAll data successfully",
       data,
     });
   } catch (error) {

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../../middleware/auth");
 const upload = require("../../utils/fileUploads");
-const { login, signup, getMe } = require("./controller");
+const { login, signup, getMe, getAll } = require("./controller");
 const { loginValidation, signUpValidation } = require("./validation");
 const cpUpload = upload.fields([
   { name: "panCard", maxCount: 1 },
@@ -13,4 +13,10 @@ const cpUpload = upload.fields([
 router.post("/login", loginValidation, login);
 router.post("/signup", cpUpload, signUpValidation, signup);
 router.get("/getMe", auth.authMiddleware, getMe);
+router.get(
+  "/getAll",
+  auth.authMiddleware,
+
+  getAll
+);
 module.exports = router;
