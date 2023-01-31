@@ -8,8 +8,8 @@ exports.get = async (conditions) => {
   return Admin.findAll(conditions);
 };
 
-exports.update = async (id, data) => {
-  return Admin.update(data, { where: { id } });
+exports.update = async (data, condition) => {
+  return Admin.update(data, condition);
 };
 
 exports.remove = async (condition) => {

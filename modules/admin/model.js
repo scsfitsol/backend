@@ -40,6 +40,9 @@ const Admin = sequelize.define(
     anyOtherCompanySpecificId: {
       type: Sequelize.STRING,
     },
+    profilePic: {
+      type: Sequelize.STRING,
+    },
   },
   {
     hooks: {

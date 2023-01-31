@@ -60,15 +60,18 @@ exports.signup = async (req, res, next) => {
       });
     }
     if (req.files) {
-      if (req.files["panCard"][0]) {
+      if (req?.files["panCard"]) {
         req.body.panCard = req.files["panCard"][0]["location"];
       }
-      if (req.files["aadharCard"][0]) {
+      if (req?.files["aadharCard"]) {
         req.body.aadharCard = req.files["aadharCard"][0]["location"];
       }
-      if (req.files["anyOtherCompanySpecificId"][0]) {
+      if (req?.files["anyOtherCompanySpecificId"]) {
         req.body.anyOtherCompanySpecificId =
-          req.files["anyOtherCompanySpecificId"][0]["location"];
+          req?.files["anyOtherCompanySpecificId"][0]["location"] || null;
+      }
+      if (req?.files["profilePic"]) {
+        req.body.profilePic = req.files["profilePic"][0]["location"];
       }
     }
     const data = await service.create(req.body);
@@ -94,6 +97,37 @@ exports.getMe = async (req, res, next) => {
     res.status(200).send({
       status: 200,
       message: "getMe successfully",
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+exports.updateMe = async (req, res, next) => {
+  try {
+    if (req.files) {
+      if (req?.files["panCard"]) {
+        req.body.panCard = req.files["panCard"][0]["location"];
+      }
+      if (req?.files["aadharCard"]) {
+        req.body.aadharCard = req.files["aadharCard"][0]["location"];
+      }
+      if (req?.files["anyOtherCompanySpecificId"]) {
+        req.body.anyOtherCompanySpecificId =
+          req.files["anyOtherCompanySpecificId"][0]["location"];
+      }
+      if (req?.files["profilePic"]) {
+        req.body.profilePic = req.files["profilePic"][0]["location"];
+      }
+    }
+    const data = await service.update(req.body, {
+      where: {
+        id: req.requestor.id,
+      },
+    });
+    res.status(200).json({
+      status: "success",
+      message: "Profile Updated Successfully.",
       data,
     });
   } catch (error) {
