@@ -20,7 +20,6 @@ const Transporter = sequelize.define(
       allowNull: false,
     },
   },
-
   {
     paranoid: true,
   }

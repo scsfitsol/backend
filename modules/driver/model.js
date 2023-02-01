@@ -39,8 +39,10 @@ const Driver = sequelize.define(
         },
       },
     },
+    profilePic: {
+      type: Sequelize.STRING,
+    },
   },
-
   {
     paranoid: true,
   }

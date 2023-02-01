@@ -2,8 +2,7 @@ const yup = require("yup");
 exports.tripValidation = async (req, res, next) => {
   try {
     const tripSchema = yup.object().shape({
-      startDate: yup.string().required("Start date is required"),
-      startTime: yup.string().required("start Time is required"),
+      startDateAndTime: yup.string().required("startDateAndTime is required"),
       sourceLocation: yup.string().required("Source location is required"),
       destinationLocation: yup
         .string()
@@ -32,8 +31,7 @@ exports.tripValidation = async (req, res, next) => {
 exports.updateTripValidation = async (req, res, next) => {
   try {
     const tripSchema = yup.object().shape({
-      startDate: yup.string(),
-      startTime: yup.string(),
+      startDateAndTime: yup.string(),
       sourceLocation: yup.string(),
       destinationLocation: yup.string(),
       weight: yup.string(),

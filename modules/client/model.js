@@ -32,6 +32,12 @@ const Client = sequelize.define(
     passResetTokenExpiresIn: {
       type: Sequelize.BIGINT,
     },
+    profilePic: {
+      type: Sequelize.STRING,
+    },
+  },
+  {
+    paranoid: true,
   },
   {
     hooks: {
@@ -40,10 +46,6 @@ const Client = sequelize.define(
         Client.password = bcrypt.hashSync(Client.password, salt);
       },
     },
-  },
-
-  {
-    paranoid: true,
   }
 );
 Organization.hasMany(Client, {
