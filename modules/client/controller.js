@@ -9,6 +9,9 @@ var createError = require("http-errors");
 
 exports.create = async (req, res, next) => {
   try {
+    if (req.file) {
+      req.body.profilePic = req.file.location;
+    }
     req.body.organizationId =
       req?.requestor?.organizationId || req?.query?.organizationId;
     const data = await service.create(req.body);
@@ -48,9 +51,10 @@ exports.get = async (req, res, next) => {
 };
 exports.getAll = async (req, res, next) => {
   try {
+    req.query.organizationId =
+      req?.requestor?.organizationId || req?.query?.organizationId;
+
     const data = await service.get({
-      organizationId:
-        req?.requestor?.organizationId || req?.query?.organizationId,
       ...sqquery(req.query),
       include: [
         {
@@ -71,7 +75,9 @@ exports.getAll = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const id = req.params.id;
-
+    if (req.file) {
+      req.body.profilePic = req.file.location;
+    }
     const data = await service.update(req.body, {
       where: {
         id,

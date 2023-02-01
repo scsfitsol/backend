@@ -46,10 +46,11 @@ exports.get = async (req, res, next) => {
 };
 exports.getAll = async (req, res, next) => {
   try {
+    req.query.organizationId =
+      req?.requestor?.organizationId || req?.query?.organizationId;
     const data = await service.get({
-      organizationId:
-        req?.requestor?.organizationId || req?.query?.organizationId,
       ...sqquery(req.query),
+
       include: [
         {
           model: Organization,

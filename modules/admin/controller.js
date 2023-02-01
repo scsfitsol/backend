@@ -2,6 +2,7 @@ const service = require("./service");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 var createError = require("http-errors");
+const Organization = require("../organization/model");
 
 exports.login = async (req, res, next) => {
   try {
@@ -92,6 +93,12 @@ exports.getMe = async (req, res, next) => {
       where: {
         id: req.requestor.id,
       },
+      include: [
+        {
+          model: Organization,
+          required: false,
+        },
+      ],
     });
 
     res.status(200).send({

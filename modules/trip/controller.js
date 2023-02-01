@@ -76,9 +76,9 @@ exports.get = async (req, res, next) => {
 };
 exports.getAll = async (req, res, next) => {
   try {
+    req.query.organizationId =
+      req?.requestor?.organizationId || req?.query?.organizationId;
     const data = await service.get({
-      organizationId:
-        req?.requestor?.organizationId || req?.query?.organizationId,
       ...sqquery(req.query),
       include: [
         {
@@ -177,12 +177,6 @@ exports.updateTripStatus = async (req, res, next) => {
             req?.requestor?.organizationId || req?.query?.organizationId,
         },
       });
-      console.log(
-        "vehicleId--->",
-        req.body.vehicleId,
-        req?.requestor?.organizationId
-      );
-      console.log("vehicleData------>", vehicleData);
       vehicleData.allocate = "false";
       await vehicleData.save();
 

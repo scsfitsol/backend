@@ -17,6 +17,8 @@ exports.getAll = async (req, res, next) => {
         [Op.gte]: new Date(startDate),
         [Op.lte]: moment(new Date()).add(1, "days"),
       },
+      organizationId:
+        req?.requestor?.organizationId || req?.query?.organizationId,
     };
 
     const driver = await Driver.count({
@@ -79,9 +81,18 @@ exports.getAll = async (req, res, next) => {
         status: 3,
       },
     });
-    const last30DaysTrip = await Trip.count({
-      where: dataFilter,
+    let dataFilterTripCompleted = {
+      createdAt: {
+        [Op.gte]: new Date(startDate),
+        [Op.lte]: moment(new Date()).add(1, "days"),
+      },
+      organizationId:
+        req?.requestor?.organizationId || req?.query?.organizationId,
       status: 3,
+    };
+
+    const last30DaysTrip = await Trip.count({
+      where: dataFilterTripCompleted,
     });
     const totalOnTimeTrip = await Trip.count({
       where: {
@@ -118,6 +129,16 @@ exports.getAll = async (req, res, next) => {
       where: {
         status: 3,
       },
+      attributes: [
+        [
+          Sequelize.fn("sum", Sequelize.col("carbonEmission")),
+          "carbonEmissionSum",
+        ],
+        [Sequelize.fn("avg", Sequelize.col("utilisation")), "utilisationAvg"],
+      ],
+    });
+    const last30DaysTripAnalytics = await Trip.findAll({
+      where: dataFilterTripCompleted,
       attributes: [
         [
           Sequelize.fn("sum", Sequelize.col("carbonEmission")),
@@ -335,6 +356,7 @@ exports.getAll = async (req, res, next) => {
           totalEarlyTrip,
           totalOnTimeTrip,
           tripAnalytics,
+          last30DaysTripAnalytics,
         },
       },
     });

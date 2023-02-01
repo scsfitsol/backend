@@ -23,19 +23,20 @@ const {
 router
   .route("/")
   .post(
+    upload.single("profilePic"),
     clientValidation,
     auth.authMiddleware,
     auth.restrictTo("admin", "superAdmin"),
     create
   )
-  .get(getAll);
+  .get(auth.authMiddleware, auth.restrictTo("admin", "superAdmin"), getAll);
 router.post("/login", loginValidation, login);
 router.post("/forgotPassword", forgotPasswordValidation, forgotPassword);
 router.post("/resetPassword/:token", resetPassword);
 router
   .route("/:id")
   .get(get)
-  .patch(updateClientValidation, update)
+  .patch(upload.single("profilePic"), updateClientValidation, update)
   .delete(remove);
 
 module.exports = router;
