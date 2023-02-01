@@ -23,7 +23,7 @@ app.use(function (req, res, next) {
 // error handler
 app.use(function (err, req, res, next) {
   console.log({ err });
-  res.status(err.status || 500).json({
+  res.status(err.status || err.statusCode || 500).json({
     status: err.status || 500,
     message: err.message || "Unknown Error",
     stack: err.stack,

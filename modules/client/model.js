@@ -35,9 +35,9 @@ const Client = sequelize.define(
   },
   {
     hooks: {
-      beforeCreate: (Organization) => {
+      beforeCreate: (Client) => {
         const salt = bcrypt.genSaltSync();
-        Organization.password = bcrypt.hashSync(Organization.password, salt);
+        Client.password = bcrypt.hashSync(Client.password, salt);
       },
     },
   },

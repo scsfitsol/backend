@@ -9,7 +9,7 @@ exports.signUpValidation = async (req, res, next) => {
         .required("Email is required"),
 
       password: yup.string().required("Password is required"),
-      role: yup.mixed().oneOf(["Admin", "SuperAdmin"]),
+      role: yup.mixed().oneOf(["admin", "superAdmin"]),
     });
     await SignupSchema.validate(req.body);
     next();

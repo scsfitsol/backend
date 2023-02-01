@@ -1,6 +1,7 @@
 const service = require("./service");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+var createError = require("http-errors");
 
 exports.login = async (req, res, next) => {
   try {
@@ -29,12 +30,15 @@ exports.login = async (req, res, next) => {
           message: "Admin login successfully",
           token,
         });
+      } else {
+        next(
+          createError(401, "Admin login fail bcz id and password doesn't match")
+        );
       }
     } else {
-      res.status(401).json({
-        status: "fail",
-        message: "Admin login fail bcz id and password doesn't match",
-      });
+      next(
+        new Error("Admin login fail bcz id and password doesn't match", 401)
+      );
     }
   } catch (error) {
     next(error);
@@ -56,15 +60,18 @@ exports.signup = async (req, res, next) => {
       });
     }
     if (req.files) {
-      if (req.files["panCard"][0]) {
+      if (req?.files["panCard"]) {
         req.body.panCard = req.files["panCard"][0]["location"];
       }
-      if (req.files["aadharCard"][0]) {
+      if (req?.files["aadharCard"]) {
         req.body.aadharCard = req.files["aadharCard"][0]["location"];
       }
-      if (req.files["anyOtherCompanySpecificId"][0]) {
+      if (req?.files["anyOtherCompanySpecificId"]) {
         req.body.anyOtherCompanySpecificId =
-          req.files["anyOtherCompanySpecificId"][0]["location"];
+          req?.files["anyOtherCompanySpecificId"][0]["location"] || null;
+      }
+      if (req?.files["profilePic"]) {
+        req.body.profilePic = req.files["profilePic"][0]["location"];
       }
     }
     const data = await service.create(req.body);
@@ -90,6 +97,50 @@ exports.getMe = async (req, res, next) => {
     res.status(200).send({
       status: 200,
       message: "getMe successfully",
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+exports.updateMe = async (req, res, next) => {
+  try {
+    if (req.files) {
+      if (req?.files["panCard"]) {
+        req.body.panCard = req.files["panCard"][0]["location"];
+      }
+      if (req?.files["aadharCard"]) {
+        req.body.aadharCard = req.files["aadharCard"][0]["location"];
+      }
+      if (req?.files["anyOtherCompanySpecificId"]) {
+        req.body.anyOtherCompanySpecificId =
+          req.files["anyOtherCompanySpecificId"][0]["location"];
+      }
+      if (req?.files["profilePic"]) {
+        req.body.profilePic = req.files["profilePic"][0]["location"];
+      }
+    }
+    const data = await service.update(req.body, {
+      where: {
+        id: req.requestor.id,
+      },
+    });
+    res.status(200).json({
+      status: "success",
+      message: "Profile Updated Successfully.",
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+exports.getAll = async (req, res, next) => {
+  try {
+    const data = await service.get();
+
+    res.status(200).send({
+      status: 200,
+      message: "getAll data successfully",
       data,
     });
   } catch (error) {
