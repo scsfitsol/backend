@@ -3,6 +3,8 @@ const Driver = require("../driver/model");
 const Client = require("../client/model");
 const Vehicle = require("../vehicle/model");
 const Organization = require("../organization/model");
+const Transporter = require("../transporter/model");
+const Plant = require("../plant/model");
 const { sqquery } = require("../../utils/query");
 exports.create = async (req, res, next) => {
   try {
@@ -51,6 +53,15 @@ exports.get = async (req, res, next) => {
         },
         {
           model: Client,
+          required: false,
+        },
+        {
+          model: Transporter,
+          required: false,
+        },
+        {
+          model: Plant,
+          required: false,
         },
       ],
     });
@@ -81,6 +92,14 @@ exports.getAll = async (req, res, next) => {
         },
         {
           model: Client,
+        },
+        {
+          model: Transporter,
+          required: false,
+        },
+        {
+          model: Plant,
+          required: false,
         },
       ],
     });
@@ -158,6 +177,12 @@ exports.updateTripStatus = async (req, res, next) => {
             req?.requestor?.organizationId || req?.query?.organizationId,
         },
       });
+      console.log(
+        "vehicleId--->",
+        req.body.vehicleId,
+        req?.requestor?.organizationId
+      );
+      console.log("vehicleData------>", vehicleData);
       vehicleData.allocate = "false";
       await vehicleData.save();
 

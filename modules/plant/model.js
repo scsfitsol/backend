@@ -17,7 +17,7 @@ const Plant = sequelize.define(
       type: Sequelize.STRING,
     },
     GST: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
       allowNull: false,
     },
     location: {

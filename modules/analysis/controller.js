@@ -18,8 +18,6 @@ exports.getAll = async (req, res, next) => {
         [Op.lte]: moment(new Date()).add(1, "days"),
       },
     };
-    console.log("startDate----->", startDate);
-    console.log("today--->");
 
     const driver = await Driver.count({
       where: {
@@ -78,15 +76,18 @@ exports.getAll = async (req, res, next) => {
       where: {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
+        status: 3,
       },
     });
     const last30DaysTrip = await Trip.count({
       where: dataFilter,
+      status: 3,
     });
     const totalOnTimeTrip = await Trip.count({
       where: {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
+        status: 3,
         targetedDateAndTime: {
           [Op.eq]: Sequelize.col("completedDateAndTime"),
         },
@@ -97,6 +98,7 @@ exports.getAll = async (req, res, next) => {
       where: {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
+        status: 3,
         targetedDateAndTime: {
           [Op.lt]: Sequelize.col("completedDateAndTime"),
         },
@@ -106,11 +108,25 @@ exports.getAll = async (req, res, next) => {
       where: {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
+        status: 3,
         targetedDateAndTime: {
           [Op.gt]: Sequelize.col("completedDateAndTime"),
         },
       },
     });
+    const tripAnalytics = await Trip.findAll({
+      where: {
+        status: 3,
+      },
+      attributes: [
+        [
+          Sequelize.fn("sum", Sequelize.col("carbonEmission")),
+          "carbonEmissionSum",
+        ],
+        [Sequelize.fn("avg", Sequelize.col("utilisation")), "utilisationAvg"],
+      ],
+    });
+
     const transporter = await Transporter.count({
       where: {
         organizationId:
@@ -318,6 +334,7 @@ exports.getAll = async (req, res, next) => {
           totalLateTrip,
           totalEarlyTrip,
           totalOnTimeTrip,
+          tripAnalytics,
         },
       },
     });

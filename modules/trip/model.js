@@ -17,12 +17,8 @@ const Trip = sequelize.define(
       autoIncrement: true,
       primaryKey: true,
     },
-    startDate: {
+    startDateAndTime: {
       type: Sequelize.DATE,
-      allowNull: false,
-    },
-    startTime: {
-      type: Sequelize.TIME,
       allowNull: false,
     },
     sourceLocation: {
@@ -74,7 +70,6 @@ const Trip = sequelize.define(
 
   {
     paranoid: true,
-    alter: true,
   }
 );
 Driver.hasMany(Trip, {

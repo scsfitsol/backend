@@ -66,7 +66,6 @@ exports.getAll = async (req, res, next) => {
       data,
     });
   } catch (error) {
-    console.log("error----->", error);
     next(error);
   }
 };
