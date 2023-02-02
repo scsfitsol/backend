@@ -173,11 +173,8 @@ exports.forgotPassword = async (req, res, next) => {
       });
     client.passResetToken = uuidv4();
 
-    console.log(1, client.passResetToken);
-
     // Set passResetTokenExpiresIn
     client.passResetTokenExpiresIn = Date.now() + 2 * 60 * 1000; //min to ms
-    console.log(2, client.passResetTokenExpiresIn);
 
     await client.save({ hooks: false });
     // Send an email with the token(plain) to client
@@ -282,8 +279,6 @@ a{
 exports.resetPassword = async (req, res, next) => {
   try {
     const passResetToken = req.params.token;
-
-    console.log(passResetToken);
 
     // Find the user by the encrypted token
     const [client] = await service.get({
