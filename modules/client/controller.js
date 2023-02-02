@@ -311,3 +311,25 @@ exports.resetPassword = async (req, res, next) => {
     next(error);
   }
 };
+exports.getMe = async (req, res, next) => {
+  try {
+    const data = await service.get({
+      where: {
+        id: req.requestor.id,
+      },
+      include: [
+        {
+          model: Organization,
+        },
+      ],
+    });
+
+    res.status(200).send({
+      status: 200,
+      message: "getMe successfully",
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

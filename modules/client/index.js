@@ -12,6 +12,7 @@ const {
   login,
   forgotPassword,
   resetPassword,
+  getMe,
 } = require("./controller");
 const {
   clientValidation,
@@ -33,9 +34,10 @@ router
 router.post("/login", loginValidation, login);
 router.post("/forgotPassword", forgotPasswordValidation, forgotPassword);
 router.post("/resetPassword/:token", resetPassword);
+router.route("/getMe").get(auth.authMiddleware, getMe);
 router
   .route("/:id")
-  .get(auth.authMiddleware, get)
+  .get(auth.authMiddleware, auth.restrictTo("admin", "superAdmin"), get)
   .patch(
     auth.authMiddleware,
     upload.single("profilePic"),
