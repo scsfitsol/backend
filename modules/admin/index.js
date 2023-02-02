@@ -13,8 +13,19 @@ const cpUpload = upload.fields([
 
 router.post("/login", loginValidation, login);
 router.post("/signup", cpUpload, signUpValidation, signup);
-router.get("/getMe", auth.authMiddleware, getMe);
-router.patch("/updateMe", cpUpload, auth.authMiddleware, updateMe);
+router.get(
+  "/getMe",
+  auth.authMiddleware,
+  auth.restrictTo("admin,superAdmin"),
+  getMe
+);
+router.patch(
+  "/updateMe",
+  cpUpload,
+  auth.authMiddleware,
+  auth.restrictTo("admin,superAdmin"),
+  updateMe
+);
 router.get(
   "/getAll",
   auth.authMiddleware,

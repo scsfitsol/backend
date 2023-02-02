@@ -35,8 +35,13 @@ router.post("/forgotPassword", forgotPasswordValidation, forgotPassword);
 router.post("/resetPassword/:token", resetPassword);
 router
   .route("/:id")
-  .get(get)
-  .patch(upload.single("profilePic"), updateClientValidation, update)
-  .delete(remove);
+  .get(auth.authMiddleware, get)
+  .patch(
+    auth.authMiddleware,
+    upload.single("profilePic"),
+    updateClientValidation,
+    update
+  )
+  .delete(auth.authMiddleware, auth.restrictTo("admin", "superAdmin"), remove);
 
 module.exports = router;

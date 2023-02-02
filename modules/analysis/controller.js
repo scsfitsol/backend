@@ -20,6 +20,15 @@ exports.getAll = async (req, res, next) => {
       organizationId:
         req?.requestor?.organizationId || req?.query?.organizationId,
     };
+    let dataFilterTripCompleted = {
+      createdAt: {
+        [Op.gte]: new Date(startDate),
+        [Op.lte]: moment(new Date()).add(1, "days"),
+      },
+      organizationId:
+        req?.requestor?.organizationId || req?.query?.organizationId,
+      status: 3,
+    };
 
     const driver = await Driver.count({
       where: {
@@ -63,14 +72,14 @@ exports.getAll = async (req, res, next) => {
       where: {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
-        allocate: true,
+        allocate: "true",
       },
     });
     const freeVehicle = await Vehicle.count({
       where: {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
-        allocate: false,
+        allocate: "false",
       },
     });
 
@@ -81,15 +90,6 @@ exports.getAll = async (req, res, next) => {
         status: 3,
       },
     });
-    let dataFilterTripCompleted = {
-      createdAt: {
-        [Op.gte]: new Date(startDate),
-        [Op.lte]: moment(new Date()).add(1, "days"),
-      },
-      organizationId:
-        req?.requestor?.organizationId || req?.query?.organizationId,
-      status: 3,
-    };
 
     const last30DaysTrip = await Trip.count({
       where: dataFilterTripCompleted,
@@ -147,6 +147,14 @@ exports.getAll = async (req, res, next) => {
         [Sequelize.fn("avg", Sequelize.col("utilisation")), "utilisationAvg"],
       ],
     });
+    const last30DaysTripUtilisation = await Trip.findAll({
+      where: dataFilterTripCompleted,
+      group: [sequelize.fn("date", sequelize.col("createdAt"))],
+      attributes: [
+        [sequelize.fn("avg", Sequelize.col("utilisation")), "utilisationAvg"],
+        [sequelize.fn("date", sequelize.col("createdAt")), "date"],
+      ],
+    });
 
     const transporter = await Transporter.count({
       where: {
@@ -161,6 +169,7 @@ exports.getAll = async (req, res, next) => {
       where: {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
+        status: 3,
       },
       group: ["transporterId"],
       include: [
@@ -187,6 +196,7 @@ exports.getAll = async (req, res, next) => {
       where: {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
+        status: 3,
       },
       group: ["plantId"],
       include: [
@@ -357,6 +367,7 @@ exports.getAll = async (req, res, next) => {
           totalOnTimeTrip,
           tripAnalytics,
           last30DaysTripAnalytics,
+          last30DaysTripUtilisation,
         },
       },
     });
