@@ -16,12 +16,7 @@ router.use(
   auth.restrictTo("admin", "superAdmin"),
   require("../modules/vehicle")
 );
-router.use(
-  "/trip",
-  auth.authMiddleware,
-  auth.restrictTo("admin", "superAdmin"),
-  require("../modules/trip")
-);
+router.use("/trip", require("../modules/trip"));
 router.use(
   "/organization",
   auth.authMiddleware,

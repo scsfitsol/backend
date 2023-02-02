@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const auth = require("../../middleware/auth");
 
 const {
   create,
@@ -15,14 +16,44 @@ const {
   updateTripStatusValidation,
 } = require("./validation");
 
-router.route("/").post(tripValidation, create).get(getAll);
-router
-  .route("/updateTripStatus/:id")
-  .patch(updateTripStatusValidation, updateTripStatus);
-router
-  .route("/:id")
-  .get(get)
-  .patch(updateTripValidation, update)
-  .delete(remove);
+router.post(
+  "/",
+  auth.authMiddleware,
+  auth.restrictTo("admin", "superAdmin"),
+  tripValidation,
+  create
+);
+router.get(
+  "/",
+  auth.authMiddleware,
+  auth.restrictTo("client", "admin", "superAdmin"),
+  getAll
+);
+router.patch(
+  "/updateTripStatus/:id",
+  auth.authMiddleware,
+  auth.restrictTo("admin", "superAdmin"),
+  updateTripStatusValidation,
+  updateTripStatus
+);
+router.get(
+  "/:id",
+  auth.authMiddleware,
+  auth.restrictTo("admin", "superAdmin"),
+  get
+);
+router.patch(
+  "/:id",
+  auth.authMiddleware,
+  auth.restrictTo("admin", "superAdmin"),
+  updateTripValidation,
+  update
+);
+router.delete(
+  "/:id",
+  auth.authMiddleware,
+  auth.restrictTo("admin", "superAdmin"),
+  remove
+);
 
 module.exports = router;
