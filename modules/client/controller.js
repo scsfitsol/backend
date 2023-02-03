@@ -9,6 +9,19 @@ var createError = require("http-errors");
 
 exports.create = async (req, res, next) => {
   try {
+    const [clientWithSameEmail] = await service.get({
+      where: {
+        email: req.body.email,
+        organizationId: req?.requestor?.organizationId,
+      },
+    });
+
+    // user with email is  found.
+    if (clientWithSameEmail) {
+      return next(
+        createError(400, "This email is already register,try with another one")
+      );
+    }
     if (req.file) {
       req.body.profilePic = req.file.location;
     }
@@ -71,7 +84,6 @@ exports.getAll = async (req, res, next) => {
     next(error);
   }
 };
-
 exports.update = async (req, res, next) => {
   try {
     const id = req.params.id;
@@ -95,7 +107,6 @@ exports.update = async (req, res, next) => {
     next(error);
   }
 };
-
 exports.remove = async (req, res, next) => {
   try {
     const id = req.params.id;

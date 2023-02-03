@@ -1,7 +1,7 @@
 const service = require("./service");
 const { sqquery } = require("../../utils/query");
 const Organization = require("../organization/model");
-//const userModel = require("../user/model");
+
 exports.create = async (req, res, next) => {
   try {
     if (req.body.mobile) {

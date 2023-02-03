@@ -16,7 +16,7 @@ router.post("/signup", cpUpload, signUpValidation, signup);
 router.get(
   "/getMe",
   auth.authMiddleware,
-  auth.restrictTo("admin,superAdmin"),
+  auth.restrictTo("admin", "superAdmin"),
   getMe
 );
 router.patch(

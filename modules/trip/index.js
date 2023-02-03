@@ -36,6 +36,7 @@ router.patch(
   updateTripStatusValidation,
   updateTripStatus
 );
+
 router.get(
   "/:id",
   auth.authMiddleware,

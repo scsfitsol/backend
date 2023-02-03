@@ -32,13 +32,13 @@ exports.login = async (req, res, next) => {
           token,
         });
       } else {
-        next(
+        return next(
           createError(401, "Admin login fail bcz id and password doesn't match")
         );
       }
     } else {
-      next(
-        new Error("Admin login fail bcz id and password doesn't match", 401)
+      return next(
+        createError(401, "Admin login fail bcz id and password doesn't match")
       );
     }
   } catch (error) {
@@ -56,9 +56,9 @@ exports.signup = async (req, res, next) => {
 
     // user with email is  found.
     if (adminWithSameEmail) {
-      return res.status(400).json({
-        message: "This email is already register,try with another one",
-      });
+      return next(
+        createError(401, "This email is already register,try with another one")
+      );
     }
     if (req.files) {
       if (req?.files["panCard"]) {
@@ -86,7 +86,6 @@ exports.signup = async (req, res, next) => {
     next(error || createError(404, "Data not found"));
   }
 };
-
 exports.getMe = async (req, res, next) => {
   try {
     const data = await service.get({
