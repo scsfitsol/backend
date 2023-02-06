@@ -39,3 +39,20 @@ exports.loginValidation = async (req, res, next) => {
     });
   }
 };
+exports.forgotPasswordValidation = async (req, res, next) => {
+  try {
+    const LoginSchema = yup.object().shape({
+      email: yup
+        .string()
+        .email("Please enter valid email")
+        .required("Email is required"),
+    });
+    await LoginSchema.validate(req.body);
+    next();
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      errors: error.errors[0],
+    });
+  }
+};

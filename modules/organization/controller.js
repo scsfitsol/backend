@@ -1,10 +1,24 @@
 const service = require("./service");
 const { sqquery } = require("../../utils/query");
-const adminModel = require("../admin/model");
+const adminModel = require("../admin/service");
 //const userModel = require("../user/model");
 exports.create = async (req, res, next) => {
   try {
     const data = await service.create({ name: req.body.name });
+
+    const [adminWithSameEmail] = await adminModel.get({
+      where: {
+        email: req.body.email,
+      },
+    });
+
+    // user with email is  found.
+    if (adminWithSameEmail) {
+      return next(
+        createError(401, "This email is already register,try with another one")
+      );
+    }
+
     const adminData = await adminModel.create({
       email: req.body.email,
       password: req.body.password,

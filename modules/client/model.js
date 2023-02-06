@@ -20,6 +20,7 @@ const Client = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false,
       isEmail: true,
+      unique: true,
     },
     password: {
       type: Sequelize.STRING,
@@ -36,8 +37,6 @@ const Client = sequelize.define(
     },
   },
   {
-    paranoid: true,
-    alter: true,
     hooks: {
       beforeCreate: (Client) => {
         const salt = bcrypt.genSaltSync();

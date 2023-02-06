@@ -43,6 +43,12 @@ const Admin = sequelize.define(
     profilePic: {
       type: Sequelize.STRING,
     },
+    passResetToken: {
+      type: Sequelize.STRING,
+    },
+    passResetTokenExpiresIn: {
+      type: Sequelize.BIGINT,
+    },
   },
   {
     hooks: {

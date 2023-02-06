@@ -12,7 +12,6 @@ exports.create = async (req, res, next) => {
     const [clientWithSameEmail] = await service.get({
       where: {
         email: req.body.email,
-        organizationId: req?.requestor?.organizationId,
       },
     });
 
@@ -38,7 +37,6 @@ exports.create = async (req, res, next) => {
     next(error);
   }
 };
-
 exports.get = async (req, res, next) => {
   try {
     const data = await service.get({
