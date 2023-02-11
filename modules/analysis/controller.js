@@ -147,6 +147,26 @@ exports.getAll = async (req, res, next) => {
         [Sequelize.fn("avg", Sequelize.col("utilisation")), "utilisationAvg"],
       ],
     });
+    const lastAllMonthsTripAnalytics = await Trip.findAll({
+      where: {
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
+        status: 3,
+        $and: Sequelize.where(
+          sequelize.fn("year", sequelize.col("createdAt")),
+          moment(new Date()).format("YYYY")
+        ),
+      },
+      group: [sequelize.fn("month", sequelize.col("createdAt"))],
+      attributes: [
+        [
+          sequelize.fn("sum", Sequelize.col("carbonEmission")),
+          "carbonEmissionSum",
+        ],
+        [sequelize.fn("avg", Sequelize.col("utilisation")), "utilisationAvg"],
+        [sequelize.fn("month", sequelize.col("createdAt")), "month"],
+      ],
+    });
     const last30DaysTripUtilisation = await Trip.findAll({
       where: dataFilterTripCompleted,
       group: [sequelize.fn("date", sequelize.col("createdAt"))],
@@ -368,6 +388,7 @@ exports.getAll = async (req, res, next) => {
           tripAnalytics,
           last30DaysTripAnalytics,
           last30DaysTripUtilisation,
+          lastAllMonthsTripAnalytics,
         },
       },
     });
