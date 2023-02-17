@@ -165,6 +165,7 @@ exports.getAll = async (req, res, next) => {
         ],
         [sequelize.fn("avg", Sequelize.col("utilisation")), "utilisationAvg"],
         [sequelize.fn("month", sequelize.col("createdAt")), "month"],
+        [sequelize.fn("count", Sequelize.col("id")), "count"],
       ],
     });
     const last30DaysTripUtilisation = await Trip.findAll({

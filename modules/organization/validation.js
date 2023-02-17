@@ -22,10 +22,7 @@ exports.updateOrganizationValidation = async (req, res, next) => {
   try {
     const organizationSchema = yup.object().shape({
       name: yup.string(),
-      email: yup
-        .string()
-        .email("Please enter valid email")
-        .required("Email is required"),
+      email: yup.string().email("Please enter valid email"),
       password: yup.string(),
     });
     await organizationSchema.validate(req.body);

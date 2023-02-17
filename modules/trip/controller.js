@@ -6,6 +6,13 @@ const Organization = require("../organization/model");
 const Transporter = require("../transporter/model");
 const Plant = require("../plant/model");
 const { sqquery } = require("../../utils/query");
+const { createData, deleteNumber } = require("../locationData/locationUpdate");
+const {
+  deleteApi,
+  authApi,
+  entitySearchApi,
+  importApi,
+} = require("../../utils/api_calls");
 exports.create = async (req, res, next) => {
   try {
     req.body.organizationId =
@@ -21,14 +28,44 @@ exports.create = async (req, res, next) => {
     if (vehicleData?.capacity) {
       req.body.utilisation = (req.body.weight / vehicleData?.capacity) * 100;
     }
-
     const data = await service.create(req.body);
-
+    if (req.body.status == 2) {
+      const vehicleData = await Vehicle.update(
+        { allocate: "true" },
+        {
+          where: {
+            id: req.body.vehicleId,
+            organizationId:
+              req?.requestor?.organizationId || req?.query?.organizationId,
+          },
+        }
+      );
+      const driverData = await Driver.update(
+        { allocate: "true" },
+        {
+          where: {
+            id: req.body.driverId,
+            organizationId:
+              req?.requestor?.organizationId || req?.query?.organizationId,
+          },
+        }
+      );
+    }
     res.status(201).json({
       status: "success",
       message: "Add trip successfully",
       data,
     });
+
+    const driverDataForCron = await Driver.findOne({
+      where: {
+        id: req.body.driverId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
+      },
+    });
+    const driverNumber = `91${driverDataForCron?.mobile}`;
+    await createData(data?.id, driverNumber);
   } catch (error) {
     next(error);
   }
@@ -157,6 +194,15 @@ exports.updateTripStatus = async (req, res, next) => {
           },
         }
       );
+      const driverDataForCron = await Driver.findOne({
+        where: {
+          id: req.body.driverId,
+          organizationId:
+            req?.requestor?.organizationId || req?.query?.organizationId,
+        },
+      });
+      const driverNumber = `91${driverDataForCron?.mobile}`;
+      await createData(req.params.id, driverNumber);
     }
     if (req.body.status == "3") {
       const driverData = await Driver.update(
@@ -170,7 +216,7 @@ exports.updateTripStatus = async (req, res, next) => {
         }
       );
 
-      const [vehicleData] = await Vehicle.findAll({
+      const vehicleData = await Vehicle.findOne({
         where: {
           id: req.body.vehicleId,
           organizationId:
@@ -190,6 +236,17 @@ exports.updateTripStatus = async (req, res, next) => {
           tripData?.distanceOfTrip *
           tripData?.fuelUserd *
           2.7 || 0;
+
+      const driverDataForCron = await Driver.findOne({
+        where: {
+          id: req.body.driverId,
+          organizationId:
+            req?.requestor?.organizationId || req?.query?.organizationId,
+        },
+      });
+      const driverNumber = `91${driverDataForCron?.mobile}`;
+      console.log("driverNumber------->", driverNumber);
+      await deleteNumber(driverNumber);
     }
     const id = req.params.id;
     req.body.carbonEmission = carbonEmission;
@@ -208,6 +265,40 @@ exports.updateTripStatus = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+  }
+};
+exports.importApi = async (req, res, next) => {
+  try {
+    const driverDataForCron = await Driver.findOne({
+      where: {
+        id: req.body.driverId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
+      },
+    });
+    const driverNumber = `91${driverDataForCron?.mobile}`;
+    console.log("driverNumber---->", driverNumber);
+    const auth = await authApi();
+    console.log("token--->", auth?.data?.token);
+    const importAPi = await importApi(
+      driverDataForCron.name,
+      "driver",
+      driverNumber,
+      auth?.data?.token
+    );
+    if (res?.status === 501) {
+      es.status(501).send({
+        status: "fail",
+        message: "Something Went Wrong in Import APi",
+      });
+    }
+    console.log("importApi----------->", importAPi);
+    next();
+  } catch (error) {
+    res.status(501).send({
+      status: "fail",
+      message: "Something Went Wrong in Import APi",
+    });
   }
 };
 exports.remove = async (req, res, next) => {

@@ -9,6 +9,7 @@ const {
   remove,
   getAll,
   updateTripStatus,
+  importApi,
 } = require("./controller");
 const {
   tripValidation,
@@ -21,6 +22,7 @@ router.post(
   auth.authMiddleware,
   auth.restrictTo("admin", "superAdmin"),
   tripValidation,
+  importApi,
   create
 );
 router.get(

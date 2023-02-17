@@ -42,5 +42,11 @@ router.use(
   auth.restrictTo("admin", "superAdmin"),
   require("../modules/analysis")
 );
+router.use(
+  "/location",
+  auth.authMiddleware,
+  auth.restrictTo("client", "admin", "superAdmin"),
+  require("../modules/locationData")
+);
 
 module.exports = router;
