@@ -9,6 +9,21 @@ var createError = require("http-errors");
 
 exports.create = async (req, res, next) => {
   try {
+    const [clientWithSameEmail] = await service.get({
+      where: {
+        email: req.body.email,
+      },
+    });
+
+    // user with email is  found.
+    if (clientWithSameEmail) {
+      return next(
+        createError(400, "This email is already register,try with another one")
+      );
+    }
+    if (req.file) {
+      req.body.profilePic = req.file.location;
+    }
     req.body.organizationId =
       req?.requestor?.organizationId || req?.query?.organizationId;
     const data = await service.create(req.body);
@@ -22,7 +37,6 @@ exports.create = async (req, res, next) => {
     next(error);
   }
 };
-
 exports.get = async (req, res, next) => {
   try {
     const data = await service.get({
@@ -48,9 +62,10 @@ exports.get = async (req, res, next) => {
 };
 exports.getAll = async (req, res, next) => {
   try {
+    req.query.organizationId =
+      req?.requestor?.organizationId || req?.query?.organizationId;
+
     const data = await service.get({
-      organizationId:
-        req?.requestor?.organizationId || req?.query?.organizationId,
       ...sqquery(req.query),
       include: [
         {
@@ -67,11 +82,12 @@ exports.getAll = async (req, res, next) => {
     next(error);
   }
 };
-
 exports.update = async (req, res, next) => {
   try {
     const id = req.params.id;
-
+    if (req.file) {
+      req.body.profilePic = req.file.location;
+    }
     const data = await service.update(req.body, {
       where: {
         id,
@@ -89,7 +105,6 @@ exports.update = async (req, res, next) => {
     next(error);
   }
 };
-
 exports.remove = async (req, res, next) => {
   try {
     const id = req.params.id;
@@ -167,11 +182,8 @@ exports.forgotPassword = async (req, res, next) => {
       });
     client.passResetToken = uuidv4();
 
-    console.log(1, client.passResetToken);
-
     // Set passResetTokenExpiresIn
     client.passResetTokenExpiresIn = Date.now() + 2 * 60 * 1000; //min to ms
-    console.log(2, client.passResetTokenExpiresIn);
 
     await client.save({ hooks: false });
     // Send an email with the token(plain) to client
@@ -277,8 +289,6 @@ exports.resetPassword = async (req, res, next) => {
   try {
     const passResetToken = req.params.token;
 
-    console.log(passResetToken);
-
     // Find the user by the encrypted token
     const [client] = await service.get({
       where: { passResetToken },
@@ -306,6 +316,28 @@ exports.resetPassword = async (req, res, next) => {
         "Password changed successfully. Now you can login with the new password",
     });
     // res.redirect("https://client.servdapp.com/login");
+  } catch (error) {
+    next(error);
+  }
+};
+exports.getMe = async (req, res, next) => {
+  try {
+    const data = await service.get({
+      where: {
+        id: req.requestor.id,
+      },
+      include: [
+        {
+          model: Organization,
+        },
+      ],
+    });
+
+    res.status(200).send({
+      status: 200,
+      message: "getMe successfully",
+      data,
+    });
   } catch (error) {
     next(error);
   }

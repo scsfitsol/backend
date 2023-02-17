@@ -16,12 +16,7 @@ router.use(
   auth.restrictTo("admin", "superAdmin"),
   require("../modules/vehicle")
 );
-router.use(
-  "/trip",
-  auth.authMiddleware,
-  auth.restrictTo("admin", "superAdmin"),
-  require("../modules/trip")
-);
+router.use("/trip", require("../modules/trip"));
 router.use(
   "/organization",
   auth.authMiddleware,
@@ -46,6 +41,12 @@ router.use(
   auth.authMiddleware,
   auth.restrictTo("admin", "superAdmin"),
   require("../modules/analysis")
+);
+router.use(
+  "/location",
+  auth.authMiddleware,
+  auth.restrictTo("client", "admin", "superAdmin"),
+  require("../modules/locationData")
 );
 
 module.exports = router;

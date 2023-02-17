@@ -17,6 +17,17 @@ exports.getAll = async (req, res, next) => {
         [Op.gte]: new Date(startDate),
         [Op.lte]: moment(new Date()).add(1, "days"),
       },
+      organizationId:
+        req?.requestor?.organizationId || req?.query?.organizationId,
+    };
+    let dataFilterTripCompleted = {
+      createdAt: {
+        [Op.gte]: new Date(startDate),
+        [Op.lte]: moment(new Date()).add(1, "days"),
+      },
+      organizationId:
+        req?.requestor?.organizationId || req?.query?.organizationId,
+      status: 3,
     };
 
     const driver = await Driver.count({
@@ -61,14 +72,14 @@ exports.getAll = async (req, res, next) => {
       where: {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
-        allocate: true,
+        allocate: "true",
       },
     });
     const freeVehicle = await Vehicle.count({
       where: {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
-        allocate: false,
+        allocate: "false",
       },
     });
 
@@ -79,9 +90,9 @@ exports.getAll = async (req, res, next) => {
         status: 3,
       },
     });
+
     const last30DaysTrip = await Trip.count({
-      where: dataFilter,
-      status: 3,
+      where: dataFilterTripCompleted,
     });
     const totalOnTimeTrip = await Trip.count({
       where: {
@@ -126,6 +137,45 @@ exports.getAll = async (req, res, next) => {
         [Sequelize.fn("avg", Sequelize.col("utilisation")), "utilisationAvg"],
       ],
     });
+    const last30DaysTripAnalytics = await Trip.findAll({
+      where: dataFilterTripCompleted,
+      attributes: [
+        [
+          Sequelize.fn("sum", Sequelize.col("carbonEmission")),
+          "carbonEmissionSum",
+        ],
+        [Sequelize.fn("avg", Sequelize.col("utilisation")), "utilisationAvg"],
+      ],
+    });
+    const lastAllMonthsTripAnalytics = await Trip.findAll({
+      where: {
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
+        status: 3,
+        $and: Sequelize.where(
+          sequelize.fn("year", sequelize.col("createdAt")),
+          moment(new Date()).format("YYYY")
+        ),
+      },
+      group: [sequelize.fn("month", sequelize.col("createdAt"))],
+      attributes: [
+        [
+          sequelize.fn("sum", Sequelize.col("carbonEmission")),
+          "carbonEmissionSum",
+        ],
+        [sequelize.fn("avg", Sequelize.col("utilisation")), "utilisationAvg"],
+        [sequelize.fn("month", sequelize.col("createdAt")), "month"],
+        [sequelize.fn("count", Sequelize.col("id")), "count"],
+      ],
+    });
+    const last30DaysTripUtilisation = await Trip.findAll({
+      where: dataFilterTripCompleted,
+      group: [sequelize.fn("date", sequelize.col("createdAt"))],
+      attributes: [
+        [sequelize.fn("avg", Sequelize.col("utilisation")), "utilisationAvg"],
+        [sequelize.fn("date", sequelize.col("createdAt")), "date"],
+      ],
+    });
 
     const transporter = await Transporter.count({
       where: {
@@ -140,6 +190,7 @@ exports.getAll = async (req, res, next) => {
       where: {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
+        status: 3,
       },
       group: ["transporterId"],
       include: [
@@ -166,6 +217,7 @@ exports.getAll = async (req, res, next) => {
       where: {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
+        status: 3,
       },
       group: ["plantId"],
       include: [
@@ -335,6 +387,9 @@ exports.getAll = async (req, res, next) => {
           totalEarlyTrip,
           totalOnTimeTrip,
           tripAnalytics,
+          last30DaysTripAnalytics,
+          last30DaysTripUtilisation,
+          lastAllMonthsTripAnalytics,
         },
       },
     });

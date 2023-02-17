@@ -12,6 +12,7 @@ const {
   login,
   forgotPassword,
   resetPassword,
+  getMe,
 } = require("./controller");
 const {
   clientValidation,
@@ -23,19 +24,26 @@ const {
 router
   .route("/")
   .post(
+    upload.single("profilePic"),
     clientValidation,
     auth.authMiddleware,
     auth.restrictTo("admin", "superAdmin"),
     create
   )
-  .get(getAll);
+  .get(auth.authMiddleware, auth.restrictTo("admin", "superAdmin"), getAll);
 router.post("/login", loginValidation, login);
 router.post("/forgotPassword", forgotPasswordValidation, forgotPassword);
 router.post("/resetPassword/:token", resetPassword);
+router.route("/getMe").get(auth.authMiddleware, getMe);
 router
   .route("/:id")
-  .get(get)
-  .patch(updateClientValidation, update)
-  .delete(remove);
+  .get(auth.authMiddleware, auth.restrictTo("admin", "superAdmin"), get)
+  .patch(
+    auth.authMiddleware,
+    upload.single("profilePic"),
+    updateClientValidation,
+    update
+  )
+  .delete(auth.authMiddleware, auth.restrictTo("admin", "superAdmin"), remove);
 
 module.exports = router;

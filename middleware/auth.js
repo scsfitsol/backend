@@ -21,14 +21,14 @@ exports.authMiddleware = async (req, res, next) => {
     const jwtUser = await jwt.verify(token, process.env.JWT_SECRETE);
     let requestor;
     if (jwtUser.role === "admin" || "superAdmin") {
-      requestor = await adminService.get({
+      [requestor] = await adminService.get({
         where: {
           id: jwtUser.id,
         },
       });
     }
     if (jwtUser.role === "client") {
-      requestor = await clientService.get({
+      [requestor] = await clientService.get({
         where: {
           id: jwtUser.id,
         },
@@ -41,7 +41,7 @@ exports.authMiddleware = async (req, res, next) => {
         message: "User not found",
       });
     } else {
-      req.requestor = requestor[0];
+      req.requestor = requestor;
       next();
     }
   } catch (error) {
