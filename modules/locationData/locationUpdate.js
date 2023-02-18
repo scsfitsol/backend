@@ -32,7 +32,7 @@ exports.createData = async (tripId, driverNumber) => {
         latitude: locationData[0]?.currentLocation?.latitude,
         longtitude: locationData[0]?.currentLocation?.longitude,
         timestamp: locationData[0]?.currentLocation?.timestamp,
-        detailedAddress: locationData[0]?.currentLocation?.timestamp,
+        detailedAddress: locationData[0]?.currentLocation?.detailedAddress,
         updateLocationTime: updateLocationTime.toString(),
         tripId: tripId,
         locationResultStatusText: locationData[0]?.locationResultStatusText
