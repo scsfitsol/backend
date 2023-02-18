@@ -59,6 +59,7 @@ exports.get = async (req, res, next) => {
     next(error);
   }
 };
+
 exports.getAll = async (req, res, next) => {
   try {
     req.query.organizationId =

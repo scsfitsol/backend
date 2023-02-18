@@ -73,3 +73,39 @@ exports.deleteApi = (id, token) =>
       },
     }
   );
+var config = {
+  method: "post",
+  maxBodyLength: Infinity,
+  url: "https://india-agw.telenity.com/oauth/token?grant_type=client_credentials",
+  headers: {
+    Authorization: "Basic c21hcnR0cmFpbGNsb3VkOnNtYXJ0dHJhaWxjbG91ZA==",
+    Accept: "*/*",
+    "Content-Type": "application/x-www-form-urlencoded",
+    Host: "india-agw.telenity.com",
+  },
+};
+exports.consentAuthApi = () => axios(config);
+
+// axios.post(
+//   `https://india-agw.telenity.com/oauth/token?grant_type=client_credentials`,
+//   {
+//     headers: {
+//       Authorization: "Basic c21hcnR0cmFpbGNsb3VkOnNtYXJ0dHJhaWxjbG91ZA==",
+//       Accept: "*/*",
+//       "Content-Type": "application/x-www-form-urlencoded",
+//       Host: "india-agw.telenity.com",
+//     },
+//   }
+// );
+exports.consentApi = (driverNumber, token) =>
+  axios.get(
+    `https://india-agw.telenity.com/apigw/NOFBconsent/v1/NOFBconsent?address=tel:+91${driverNumber}`,
+    {
+      headers: {
+        Host: "india-agw.telenity.com",
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": "curl/7.50.3",
+      },
+    }
+  );
