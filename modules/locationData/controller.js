@@ -24,7 +24,7 @@ exports.getData = async (req, res, next) => {
 
     res.status(200).send({
       status: "success",
-      data,
+      data: data?.data,
     });
   } catch (error) {
     next(error);
