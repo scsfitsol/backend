@@ -109,3 +109,8 @@ exports.consentApi = (driverNumber, token) =>
       },
     }
   );
+
+exports.getDataApi = () =>
+  axios.get(
+    `https://ialertelite.ashokleyland.com/ialert/daas/api/getdata?token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJNVEE0TXpJMVxyXG4iLCJhdWQiOiJEQUFTIn0.nymBxPHNNZW-_lVcLlI8z4_D8puAHmXDyAANHrzOfDc`
+  );
