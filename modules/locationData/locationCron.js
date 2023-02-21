@@ -34,28 +34,37 @@ exports.locationUpdate = async () => {
 const getLocationUpdateDetail = async (data) => {
   console.log("data----->", data.tripId);
   return new Promise(async (resolve, reject) => {
-    let tripData;
-    try {
-      tripData = await Trip.findOne({
-        where: {
-          id: data.tripId,
-          status: 2,
-        },
-      });
-      if (tripData) {
-        const driverData = await Driver.findOne({
+    setTimeout(async () => {
+      console.log("moment----->", moment());
+      let tripData;
+      try {
+        tripData = await Trip.findOne({
           where: {
-            id: tripData.driverId,
+            id: data.tripId,
+            status: 2,
           },
         });
-        driverNumber = `91${driverData?.mobile}`;
+        if (tripData) {
+          const driverData = await Driver.findOne({
+            where: {
+              id: tripData.driverId,
+            },
+          });
+          driverNumber = `91${driverData?.mobile}`;
+        }
+        console.log("tripId--->", tripData?.id);
+        console.log("driverNumber--->", driverNumber);
+
+        await createData(
+          tripData?.id,
+          driverNumber,
+          tripData?.type,
+          tripData?.vehicleId
+        );
+      } catch (error) {
+        console.log("Error in getLocationUpdatedetail", error);
+        reject(error);
       }
-      console.log("tripId--->", tripData?.id);
-      console.log("driverNumber--->", driverNumber);
-      await createData(tripData?.id, driverNumber);
-    } catch (error) {
-      console.log("Error in getLocationUpdatedetail", error);
-      reject(error);
-    }
+    }, 4000);
   });
 };

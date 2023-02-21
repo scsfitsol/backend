@@ -3,45 +3,94 @@ const { v4: uuidv4 } = require("uuid");
 const { sqquery } = require("../../utils/query");
 var createError = require("http-errors");
 const moment = require("moment");
+const Vehicle = require("../vehicle/model");
 const {
   authApi,
   locationApi,
   entitySearchApi,
   deleteApi,
+  getDataApi,
+  getLocationByGoogleApi,
 } = require("../../utils/api_calls");
 
-exports.createData = async (tripId, driverNumber) => {
+exports.createData = async (tripId, driverNumber, type, vehicleId) => {
+  console.log("trip------>", tripId, driverNumber, type, vehicleId, moment());
   try {
     const updateLocationTime = moment()
       .add(15, "minutes")
       .set({ second: 0, millisecond: 0 });
     //const auth = await authApi();
     //const token = auth?.data?.token;
-    let location = -1;
-    try {
-      location = await locationApi(driverNumber);
-    } catch (error) {
-      console.log("error------->", error);
-    }
+    if (type == "simBased") {
+      let location = -1;
+      try {
+        location = await locationApi(driverNumber);
+      } catch (error) {
+        console.log("error------->", error);
+      }
 
-    const locationData = location?.data?.terminalLocation;
-    console.log("locationData---->", location?.data);
-    console.log("locationData---->", locationData);
-    if (locationData.length) {
-      const data = await service.create({
-        latitude: locationData[0]?.currentLocation?.latitude,
-        longtitude: locationData[0]?.currentLocation?.longitude,
-        timestamp: locationData[0]?.currentLocation?.timestamp,
-        detailedAddress: locationData[0]?.currentLocation?.detailedAddress,
-        updateLocationTime: updateLocationTime.toString(),
-        tripId: tripId,
-        locationResultStatusText: locationData[0]?.locationResultStatusText
-          ? locationData[0]?.locationResultStatusText
-          : "Internal Server Error",
-      });
+      const locationData = location?.data?.terminalLocation;
+      console.log("locationData---->", location?.data);
+      console.log("locationData---->", locationData);
+      console.log(
+        "latitude------>",
+        locationData[0]?.currentLocation?.latitude
+      );
+      if (locationData.length) {
+        const data = await service.create({
+          latitude: locationData[0]?.currentLocation?.latitude,
+          longtitude: locationData[0]?.currentLocation?.longitude,
+          timestamp: locationData[0]?.currentLocation?.timestamp,
+          detailedAddress: locationData[0]?.currentLocation?.detailedAddress,
+          updateLocationTime: updateLocationTime.toString(),
+          tripId: tripId,
+          locationResultStatusText: locationData[0]?.locationResultStatusText
+            ? locationData[0]?.locationResultStatusText
+            : "Internal Server Error",
+        });
+        console.log("data added successfully");
+      } else {
+        console.log("error------>", location?.data?.errorMessageList);
+        // resolve();
+      }
     } else {
-      console.log("error------>", location?.data?.errorMessageList);
-      // resolve();
+      try {
+        console.log("inelse-->");
+        const vehicleData = await Vehicle.findOne({
+          where: {
+            id: vehicleId,
+          },
+        });
+        const vehicleNumber = vehicleData?.registrationNumber;
+        console.log("inelse-->", vehicleNumber);
+        try {
+          const address = await getLocationByGoogleApi(12.6655, 77.7545);
+          console.log("address------->", address);
+        } catch (error) {
+          console.log("error----->", error);
+        }
+
+        const locationData = await getDataApi();
+        console.log("inelse-->", locationData.data);
+        const locationFilter = locationData.data.filter(
+          (location) => location.vehicleregnumber == vehicleNumber
+        );
+        console.log("locationFilter----->", locationFilter);
+
+        const data = await service.create({
+          latitude: locationFilter[0]?.data?.latitude,
+          longtitude: locationFilter[0]?.data?.longitude,
+          timestamp: locationFilter[0]?.data?.datetime,
+          detailedAddress: null,
+          updateLocationTime: updateLocationTime.toString(),
+          tripId: tripId,
+          locationResultStatusText: locationFilter[0]?.data?.latitude
+            ? "success"
+            : "Internal Server Error",
+        });
+      } catch (error) {
+        console.log("error------->", error);
+      }
     }
   } catch (error) {
     console.log("error--->", error);

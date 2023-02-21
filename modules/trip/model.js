@@ -66,10 +66,16 @@ const Trip = sequelize.define(
     vehicleRating: {
       type: Sequelize.FLOAT,
     },
+    type: {
+      type: Sequelize.ENUM("simBased", "ashokleyland"),
+      defaultValue: "simBased",
+      allowNull: false,
+    },
   },
 
   {
     paranoid: true,
+    alter: true,
   }
 );
 Driver.hasMany(Trip, {

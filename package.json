@@ -29,6 +29,7 @@
     "multer-s3": "^2.10.0",
     "mysql2": "^2.3.3",
     "node-cron": "^3.0.2",
+    "request": "^2.88.2",
     "sequelize": "^6.21.4",
     "socket.io": "^4.5.2",
     "yup": "^0.32.11"

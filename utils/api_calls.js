@@ -1,5 +1,6 @@
 const { default: axios, AxiosError, AxiosResponse } = require("axios");
 const token = require("../utils/constant");
+const request = require("request");
 
 exports.authApi = () =>
   axios.get(`${process.env.API_TELENITY_BASE_URL}/login`, {
@@ -114,3 +115,9 @@ exports.getDataApi = () =>
   axios.get(
     `https://ialertelite.ashokleyland.com/ialert/daas/api/getdata?token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJNVEE0TXpJMVxyXG4iLCJhdWQiOiJEQUFTIn0.nymBxPHNNZW-_lVcLlI8z4_D8puAHmXDyAANHrzOfDc`
   );
+
+exports.getLocationByGoogleApi = (lat, long) => {
+  request(
+    `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=AIzaSyAIh5rjUYY8SoLb14LUnxrbhD2XnRsF_78`
+  );
+};
