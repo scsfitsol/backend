@@ -4,6 +4,8 @@ const { sqquery } = require("../../utils/query");
 var createError = require("http-errors");
 const moment = require("moment");
 const Vehicle = require("../vehicle/model");
+const { promisify } = require("util");
+const request = require("request");
 const {
   authApi,
   locationApi,
@@ -12,6 +14,10 @@ const {
   getDataApi,
   getLocationByGoogleApi,
 } = require("../../utils/api_calls");
+
+const delay = (delayInms) => {
+  return new Promise((resolve) => setTimeout(resolve, delayInms));
+};
 
 exports.createData = async (tripId, driverNumber, type, vehicleId) => {
   console.log("trip------>", tripId, driverNumber, type, vehicleId, moment());
@@ -24,6 +30,7 @@ exports.createData = async (tripId, driverNumber, type, vehicleId) => {
     if (type == "simBased") {
       let location = -1;
       try {
+        console.log("time1------->", moment());
         location = await locationApi(driverNumber);
       } catch (error) {
         console.log("error------->", error);
@@ -53,6 +60,7 @@ exports.createData = async (tripId, driverNumber, type, vehicleId) => {
         console.log("error------>", location?.data?.errorMessageList);
         // resolve();
       }
+      await delay(4000);
     } else {
       try {
         console.log("inelse-->");
@@ -64,7 +72,9 @@ exports.createData = async (tripId, driverNumber, type, vehicleId) => {
         const vehicleNumber = vehicleData?.registrationNumber;
         console.log("inelse-->", vehicleNumber);
         try {
-          const address = await getLocationByGoogleApi(12.6655, 77.7545);
+          const address = await promisify(request)(
+            getLocationByGoogleApi(12.6655, 77.7545)
+          );
           console.log("address------->", address);
         } catch (error) {
           console.log("error----->", error);
@@ -78,13 +88,13 @@ exports.createData = async (tripId, driverNumber, type, vehicleId) => {
         console.log("locationFilter----->", locationFilter);
 
         const data = await service.create({
-          latitude: locationFilter[0]?.data?.latitude,
-          longtitude: locationFilter[0]?.data?.longitude,
-          timestamp: locationFilter[0]?.data?.datetime,
+          latitude: locationFilter[0]?.latitude,
+          longtitude: locationFilter[0]?.longitude,
+          timestamp: locationFilter[0]?.datetime,
           detailedAddress: null,
           updateLocationTime: updateLocationTime.toString(),
           tripId: tripId,
-          locationResultStatusText: locationFilter[0]?.data?.latitude
+          locationResultStatusText: locationFilter[0]?.latitude
             ? "success"
             : "Internal Server Error",
         });

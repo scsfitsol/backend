@@ -1,6 +1,7 @@
 const { default: axios, AxiosError, AxiosResponse } = require("axios");
 const token = require("../utils/constant");
 const request = require("request");
+const { promisify } = require("util");
 
 exports.authApi = () =>
   axios.get(`${process.env.API_TELENITY_BASE_URL}/login`, {
@@ -116,8 +117,19 @@ exports.getDataApi = () =>
     `https://ialertelite.ashokleyland.com/ialert/daas/api/getdata?token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJNVEE0TXpJMVxyXG4iLCJhdWQiOiJEQUFTIn0.nymBxPHNNZW-_lVcLlI8z4_D8puAHmXDyAANHrzOfDc`
   );
 
-exports.getLocationByGoogleApi = (lat, long) => {
-  request(
-    `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=AIzaSyAIh5rjUYY8SoLb14LUnxrbhD2XnRsF_78`
-  );
+exports.getLocationByGoogleApi = async (lat, long) => {
+  var options = {
+    method: "get",
+    url: `https://maps.googleapis.com/maps/api/geocode/json?latlng=22.7134,72.7497&key=AIzaSyAIh5rjUYY8SoLb14LUnxrbhD2XnRsF_78`,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+  const data = await promisify(request)(options);
+  console.log(JSON.parse(data.body));
+  return JSON.parse(data.body);
+  // axios.get(
+  //   // `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=AIzaSyAIh5rjUYY8SoLb14LUnxrbhD2XnRsF_78`
+  //   `https://maps.googleapis.com/maps/api/geocode/json?latlng=22.7134,72.7497&key=AIzaSyAIh5rjUYY8SoLb14LUnxrbhD2XnRsF_78`
+  // );
 };
