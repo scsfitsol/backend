@@ -17,15 +17,9 @@ exports.locationUpdate = async () => {
     });
     console.log("locationData--->", locationData, Array.isArray(locationData));
     if (locationData?.length) {
-      const locationAllFunctions = locationData.map((data) =>
-        getLocationUpdateDetail(data)
+      await Promise.all(
+        locationData.map(async (data) => await getLocationUpdateDetail(data))
       );
-      console.log(
-        "locationAllFunctions",
-        locationAllFunctions,
-        locationAllFunctions.length
-      );
-      await Promise.all(locationAllFunctions);
     }
   } catch (error) {
     console.log("error in catch", error);
@@ -34,6 +28,7 @@ exports.locationUpdate = async () => {
 const getLocationUpdateDetail = async (data) => {
   console.log("data----->", data.tripId);
   return new Promise(async (resolve, reject) => {
+    console.log("moment----->", moment());
     let tripData;
     try {
       tripData = await Trip.findOne({
@@ -52,7 +47,13 @@ const getLocationUpdateDetail = async (data) => {
       }
       console.log("tripId--->", tripData?.id);
       console.log("driverNumber--->", driverNumber);
-      await createData(tripData?.id, driverNumber);
+
+      await createData(
+        tripData?.id,
+        driverNumber,
+        tripData?.type,
+        tripData?.vehicleId
+      );
     } catch (error) {
       console.log("Error in getLocationUpdatedetail", error);
       reject(error);

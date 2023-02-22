@@ -18,6 +18,7 @@ exports.tripValidation = async (req, res, next) => {
       driverId: yup.number().required("driver id is required field"),
       clientId: yup.number(),
       transporterId: yup.number(),
+      type: yup.mixed(["simBased", "ashokleyland"]).required(),
     });
     await tripSchema.validate(req.body);
     next();
@@ -44,6 +45,7 @@ exports.updateTripValidation = async (req, res, next) => {
       driverId: yup.number(),
       clientId: yup.number(),
       transporterId: yup.number(),
+      type: yup.mixed(["simBased", "ashokleyland"]),
     });
     await tripSchema.validate(req.body);
     next();

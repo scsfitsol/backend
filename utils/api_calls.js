@@ -1,5 +1,7 @@
 const { default: axios, AxiosError, AxiosResponse } = require("axios");
 const token = require("../utils/constant");
+const request = require("request");
+const { promisify } = require("util");
 
 exports.authApi = () =>
   axios.get(`${process.env.API_TELENITY_BASE_URL}/login`, {
@@ -73,3 +75,61 @@ exports.deleteApi = (id, token) =>
       },
     }
   );
+var config = {
+  method: "post",
+  maxBodyLength: Infinity,
+  url: "https://india-agw.telenity.com/oauth/token?grant_type=client_credentials",
+  headers: {
+    Authorization: "Basic c21hcnR0cmFpbGNsb3VkOnNtYXJ0dHJhaWxjbG91ZA==",
+    Accept: "*/*",
+    "Content-Type": "application/x-www-form-urlencoded",
+    Host: "india-agw.telenity.com",
+  },
+};
+exports.consentAuthApi = () => axios(config);
+
+// axios.post(
+//   `https://india-agw.telenity.com/oauth/token?grant_type=client_credentials`,
+//   {
+//     headers: {
+//       Authorization: "Basic c21hcnR0cmFpbGNsb3VkOnNtYXJ0dHJhaWxjbG91ZA==",
+//       Accept: "*/*",
+//       "Content-Type": "application/x-www-form-urlencoded",
+//       Host: "india-agw.telenity.com",
+//     },
+//   }
+// );
+exports.consentApi = (driverNumber, token) =>
+  axios.get(
+    `https://india-agw.telenity.com/apigw/NOFBconsent/v1/NOFBconsent?address=tel:+91${driverNumber}`,
+    {
+      headers: {
+        Host: "india-agw.telenity.com",
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": "curl/7.50.3",
+      },
+    }
+  );
+
+exports.getDataApi = () =>
+  axios.get(
+    `https://ialertelite.ashokleyland.com/ialert/daas/api/getdata?token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJNVEE0TXpJMVxyXG4iLCJhdWQiOiJEQUFTIn0.nymBxPHNNZW-_lVcLlI8z4_D8puAHmXDyAANHrzOfDc`
+  );
+
+exports.getLocationByGoogleApi = async (lat, long) => {
+  var options = {
+    method: "get",
+    url: `https://maps.googleapis.com/maps/api/geocode/json?latlng=22.7134,72.7497&key=AIzaSyAIh5rjUYY8SoLb14LUnxrbhD2XnRsF_78`,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+  const data = await promisify(request)(options);
+  console.log(JSON.parse(data.body));
+  return JSON.parse(data.body);
+  // axios.get(
+  //   // `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=AIzaSyAIh5rjUYY8SoLb14LUnxrbhD2XnRsF_78`
+  //   `https://maps.googleapis.com/maps/api/geocode/json?latlng=22.7134,72.7497&key=AIzaSyAIh5rjUYY8SoLb14LUnxrbhD2XnRsF_78`
+  // );
+};

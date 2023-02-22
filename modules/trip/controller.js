@@ -65,7 +65,7 @@ exports.create = async (req, res, next) => {
       },
     });
     const driverNumber = `91${driverDataForCron?.mobile}`;
-    await createData(data?.id, driverNumber);
+    await createData(data?.id, driverNumber, data?.type, data?.vehicleId);
   } catch (error) {
     next(error);
   }
@@ -269,31 +269,35 @@ exports.updateTripStatus = async (req, res, next) => {
 };
 exports.importApi = async (req, res, next) => {
   try {
-    const driverDataForCron = await Driver.findOne({
-      where: {
-        id: req.body.driverId,
-        organizationId:
-          req?.requestor?.organizationId || req?.query?.organizationId,
-      },
-    });
-    const driverNumber = `91${driverDataForCron?.mobile}`;
-    console.log("driverNumber---->", driverNumber);
-    const auth = await authApi();
-    console.log("token--->", auth?.data?.token);
-    const importAPi = await importApi(
-      driverDataForCron.name,
-      "driver",
-      driverNumber,
-      auth?.data?.token
-    );
-    if (res?.status === 501) {
-      es.status(501).send({
-        status: "fail",
-        message: "Something Went Wrong in Import APi",
+    if (req.body.type == "simBased") {
+      const driverDataForCron = await Driver.findOne({
+        where: {
+          id: req.body.driverId,
+          organizationId:
+            req?.requestor?.organizationId || req?.query?.organizationId,
+        },
       });
+      const driverNumber = `91${driverDataForCron?.mobile}`;
+      console.log("driverNumber---->", driverNumber);
+      const auth = await authApi();
+      console.log("token--->", auth?.data?.token);
+      const importAPi = await importApi(
+        driverDataForCron.name,
+        "driver",
+        driverNumber,
+        auth?.data?.token
+      );
+      if (res?.status === 501) {
+        es.status(501).send({
+          status: "fail",
+          message: "Something Went Wrong in Import APi",
+        });
+      }
+      console.log("importApi----------->", importAPi);
+      next();
+    } else {
+      next();
     }
-    console.log("importApi----------->", importAPi);
-    next();
   } catch (error) {
     res.status(501).send({
       status: "fail",

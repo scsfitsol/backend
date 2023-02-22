@@ -33,7 +33,6 @@ const Location = sequelize.define(
   },
   {
     paranoid: true,
-    alter: true,
   }
 );
 Trip.hasMany(Location, {
