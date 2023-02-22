@@ -71,13 +71,6 @@ exports.createData = async (tripId, driverNumber, type, vehicleId) => {
         });
         const vehicleNumber = vehicleData?.registrationNumber;
         console.log("inelse-->", vehicleNumber);
-        try {
-          const address = await getLocationByGoogleApi(12.6655, 77.7545);
-
-          console.log("address------->", address);
-        } catch (error) {
-          console.log("error----->", error);
-        }
 
         const locationData = await getDataApi();
         console.log("inelse-->", locationData.data);
@@ -86,11 +79,18 @@ exports.createData = async (tripId, driverNumber, type, vehicleId) => {
         );
         console.log("locationFilter----->", locationFilter);
 
+        const address = await getLocationByGoogleApi(
+          locationFilter[0]?.latitude,
+          locationFilter[0]?.longitude
+        );
+
+        console.log("address------->", address);
+
         const data = await service.create({
           latitude: locationFilter[0]?.latitude,
           longtitude: locationFilter[0]?.longitude,
           timestamp: locationFilter[0]?.datetime,
-          detailedAddress: null,
+          detailedAddress: address?.data?.plus_code,
           updateLocationTime: updateLocationTime.toString(),
           tripId: tripId,
           locationResultStatusText: locationFilter[0]?.latitude
