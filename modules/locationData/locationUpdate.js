@@ -78,19 +78,15 @@ exports.createData = async (tripId, driverNumber, type, vehicleId) => {
           (location) => location.vehicleregnumber == vehicleNumber
         );
         console.log("locationFilter----->", locationFilter);
+        const address = await getLocationByGoogleApi(23.0223, 72.2794);
 
-        const address = await getLocationByGoogleApi(
-          locationFilter[0]?.latitude,
-          locationFilter[0]?.longitude
-        );
-
-        console.log("address------->", address);
+        console.log("address2------->", address?.plus_code?.compound_code);
 
         const data = await service.create({
           latitude: locationFilter[0]?.latitude,
           longtitude: locationFilter[0]?.longitude,
           timestamp: locationFilter[0]?.datetime,
-          detailedAddress: address?.data?.plus_code,
+          detailedAddress: address?.plus_code?.compound_code,
           updateLocationTime: updateLocationTime.toString(),
           tripId: tripId,
           locationResultStatusText: locationFilter[0]?.latitude
