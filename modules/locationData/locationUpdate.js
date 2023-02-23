@@ -4,8 +4,7 @@ const { sqquery } = require("../../utils/query");
 var createError = require("http-errors");
 const moment = require("moment");
 const Vehicle = require("../vehicle/model");
-const { promisify } = require("util");
-const request = require("request");
+
 const {
   authApi,
   locationApi,
@@ -30,7 +29,7 @@ exports.createData = async (tripId, driverNumber, type, vehicleId) => {
     if (type == "simBased") {
       let location = -1;
       try {
-        console.log("time1------->", moment());
+        console.log("timeNew------->", moment());
         location = await locationApi(driverNumber);
       } catch (error) {
         console.log("error------->", error);

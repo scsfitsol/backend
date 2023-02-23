@@ -7,8 +7,6 @@ const Trip = require("../trip/model");
 exports.locationUpdate = async () => {
   try {
     console.log("node cron job called");
-    let tripData, driverNumber;
-
     //fetch the current data of location using API
     const locationData = await service.get({
       where: {
@@ -17,9 +15,11 @@ exports.locationUpdate = async () => {
     });
     console.log("locationData--->", locationData, Array.isArray(locationData));
     if (locationData?.length) {
-      await Promise.all(
-        locationData.map(async (data) => await getLocationUpdateDetail(data))
-      );
+      console.log("locationData.length", locationData.length);
+      for (let i = 0; i < locationData?.length; i++) {
+        //for one by one data updated
+        await getLocationUpdateDetail(locationData[i]);
+      }
     }
   } catch (error) {
     console.log("error in catch", error);
@@ -27,36 +27,34 @@ exports.locationUpdate = async () => {
 };
 const getLocationUpdateDetail = async (data) => {
   console.log("data----->", data.tripId);
-  return new Promise(async (resolve, reject) => {
-    console.log("moment----->", moment());
-    let tripData;
-    try {
-      tripData = await Trip.findOne({
+  console.log("momentTime12----->", moment());
+  let tripData;
+  try {
+    tripData = await Trip.findOne({
+      where: {
+        id: data.tripId,
+        status: 2,
+      },
+    });
+    if (tripData) {
+      const driverData = await Driver.findOne({
         where: {
-          id: data.tripId,
-          status: 2,
+          id: tripData.driverId,
         },
       });
-      if (tripData) {
-        const driverData = await Driver.findOne({
-          where: {
-            id: tripData.driverId,
-          },
-        });
-        driverNumber = `91${driverData?.mobile}`;
-      }
-      console.log("tripId--->", tripData?.id);
-      console.log("driverNumber--->", driverNumber);
-
-      await createData(
-        tripData?.id,
-        driverNumber,
-        tripData?.type,
-        tripData?.vehicleId
-      );
-    } catch (error) {
-      console.log("Error in getLocationUpdatedetail", error);
-      reject(error);
+      driverNumber = `91${driverData?.mobile}`;
     }
-  });
+    console.log("tripId--->", tripData?.id);
+    console.log("driverNumber--->", driverNumber);
+
+    await createData(
+      tripData?.id,
+      driverNumber,
+      tripData?.type,
+      tripData?.vehicleId
+    );
+  } catch (error) {
+    console.log("Error in getLocationUpdatedetail", error);
+    reject(error);
+  }
 };
