@@ -6,18 +6,25 @@
     "host": "fitsol-rds.chwdw1rgdk8q.ap-south-1.rds.amazonaws.com",
     "dialect": "mysql"
   },
+  "staging": {
+    "username": "admin",
+    "password": "TTPznUYClhHz3pduxZ72",
+    "database": "fitsol-staging",
+    "host": "fitsol-rds.chwdw1rgdk8q.ap-south-1.rds.amazonaws.com",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "admin",
+    "password": "sokQZqHZnfas4DIlTAvD",
+    "database": "fitsol-production",
+    "host": "fitsolscs.chwdw1rgdk8q.ap-south-1.rds.amazonaws.com",
+    "dialect": "mysql"
+  },
   "test": {
     "username": "root",
     "password": "Asu@4496",
     "database": "fitsol",
     "host": "127.0.0.1",
-    "dialect": "mysql"
-  },
-  "production": {
-    "username": "admin",
-    "password": "sfsfsfsfsfsf",
-    "database": "guddadadad",
-    "host": "ddadadadadadadmazonaws.com",
     "dialect": "mysql"
   }
 }

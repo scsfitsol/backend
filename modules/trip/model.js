@@ -29,6 +29,12 @@ const Trip = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false,
     },
+    sourceId: {
+      type: Sequelize.STRING,
+    },
+    destinationId: {
+      type: Sequelize.STRING,
+    },
     weight: {
       type: Sequelize.FLOAT,
       allowNull: false,
