@@ -25,6 +25,11 @@ const Driver = sequelize.define(
       defaultValue: "false",
       allowNull: false,
     },
+    countryCode: {
+      type: Sequelize.STRING,
+      defaultValue: "+91",
+      allowNull: false,
+    },
     mobile: {
       type: Sequelize.BIGINT,
       unique: true,
@@ -45,6 +50,7 @@ const Driver = sequelize.define(
   },
   {
     paranoid: true,
+    alter: true,
   }
 );
 Organization.hasMany(Driver, {

@@ -13,6 +13,7 @@ const {
   entitySearchApi,
   importApi,
 } = require("../../utils/api_calls");
+const sequelize = require("sequelize");
 exports.create = async (req, res, next) => {
   try {
     req.body.organizationId =
@@ -115,6 +116,22 @@ exports.getAll = async (req, res, next) => {
   try {
     req.query.organizationId =
       req?.requestor?.organizationId || req?.query?.organizationId;
+    const { startDate, endDate } = req.query;
+    const dateFilter = {};
+
+    if (startDate) {
+      const newStartDate = new Date(startDate);
+      const newEndDate = endDate ? new Date(endDate) : new Date();
+      dateFilter.createdAt = {
+        [sequelize.Op.gte]: newStartDate,
+        [sequelize.Op.lt]: newEndDate,
+      };
+      req.query.createdAt = dateFilter;
+    }
+
+    delete req.query.startDate;
+    delete req.query.endDate;
+
     const data = await service.get({
       ...sqquery(req.query),
       include: [
