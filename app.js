@@ -36,3 +36,4 @@ app.use(function (err, req, res, next) {
 cron.schedule(" * * * * *", locationUpdate);
 
 module.exports = app;
+
