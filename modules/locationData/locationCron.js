@@ -15,7 +15,6 @@ exports.locationUpdate = async () => {
     });
     console.log("locationData--->", locationData, Array.isArray(locationData));
     if (locationData?.length) {
-      console.log("locationData.length", locationData.length);
       for (let i = 0; i < locationData?.length; i++) {
         //for one by one data updated
         await getLocationUpdateDetail(locationData[i]);
@@ -26,8 +25,6 @@ exports.locationUpdate = async () => {
   }
 };
 const getLocationUpdateDetail = async (data) => {
-  console.log("data----->", data.tripId);
-  console.log("momentTime12----->", moment());
   let tripData;
   try {
     tripData = await Trip.findOne({
@@ -44,8 +41,6 @@ const getLocationUpdateDetail = async (data) => {
       });
       driverNumber = `91${driverData?.mobile}`;
     }
-    console.log("tripId--->", tripData?.id);
-    console.log("driverNumber--->", driverNumber);
 
     await createData(
       tripData?.id,
