@@ -10,6 +10,7 @@ const {
   getAll,
   updateTripStatus,
   importApi,
+  getClientAnalytics,
 } = require("./controller");
 const {
   tripValidation,
@@ -38,6 +39,7 @@ router.patch(
   updateTripStatusValidation,
   updateTripStatus
 );
+router.get("/clientAnalytics", auth.authMiddleware, getClientAnalytics);
 
 router.get(
   "/:id",

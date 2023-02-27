@@ -1,3 +1,4 @@
+const { condition } = require("sequelize");
 const trip = require("./model");
 
 exports.create = async (data) => {
@@ -14,4 +15,7 @@ exports.update = async (data, condition) => {
 
 exports.remove = async (condition) => {
   return trip.destroy(condition);
+};
+exports.count = async (condition) => {
+  return trip.count(condition);
 };
