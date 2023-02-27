@@ -19,7 +19,6 @@ const delay = (delayInms) => {
 };
 
 exports.createData = async (tripId, driverNumber, type, vehicleId) => {
-  console.log("trip------>", tripId, driverNumber, type, vehicleId, moment());
   try {
     const updateLocationTime = moment()
       .add(15, "minutes")
@@ -29,19 +28,13 @@ exports.createData = async (tripId, driverNumber, type, vehicleId) => {
     if (type == "simBased") {
       let location = -1;
       try {
-        console.log("timeNew------->", moment());
         location = await locationApi(driverNumber);
       } catch (error) {
         console.log("error------->", error);
       }
 
       const locationData = location?.data?.terminalLocation;
-      console.log("locationData---->", location?.data);
-      console.log("locationData---->", locationData);
-      console.log(
-        "latitude------>",
-        locationData[0]?.currentLocation?.latitude
-      );
+
       if (locationData.length) {
         const data = await service.create({
           latitude: locationData[0]?.currentLocation?.latitude,
@@ -62,24 +55,27 @@ exports.createData = async (tripId, driverNumber, type, vehicleId) => {
       await delay(4000);
     } else {
       try {
-        console.log("inelse-->");
         const vehicleData = await Vehicle.findOne({
           where: {
             id: vehicleId,
           },
         });
         const vehicleNumber = vehicleData?.registrationNumber;
-        console.log("inelse-->", vehicleNumber);
 
         const locationData = await getDataApi();
-        console.log("inelse-->", locationData.data);
+
         const locationFilter = locationData.data.filter(
           (location) => location.vehicleregnumber == vehicleNumber
         );
-        console.log("locationFilter----->", locationFilter);
-        const address = await getLocationByGoogleApi(23.0223, 72.2794);
-
-        console.log("address2------->", address?.plus_code?.compound_code);
+        let address;
+        try {
+          address = await getLocationByGoogleApi(
+            locationFilter[0]?.latitude,
+            locationFilter[0]?.longitude
+          );
+        } catch (error) {
+          console.log("error in google location api");
+        }
 
         const data = await service.create({
           latitude: locationFilter[0]?.latitude,
@@ -106,7 +102,6 @@ exports.deleteNumber = async (driverNumber) => {
     const token = auth?.data?.token;
     const searchApi = await entitySearchApi(driverNumber, token);
     const id = searchApi?.data?.data[0]?.id;
-    console.log("id1---->", searchApi?.data?.data[0]?.id);
     const deleteData = await deleteApi(id, token);
     console.log("deleteData------->", deleteData?.data);
   } catch (error) {
