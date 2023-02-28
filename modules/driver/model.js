@@ -50,7 +50,6 @@ const Driver = sequelize.define(
   },
   {
     paranoid: true,
-    alter: true,
   }
 );
 Organization.hasMany(Driver, {
