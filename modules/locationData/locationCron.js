@@ -6,14 +6,12 @@ const Trip = require("../trip/model");
 
 exports.locationUpdate = async () => {
   try {
-    console.log("node cron job called");
     //fetch the current data of location using API
     const locationData = await service.get({
       where: {
         updateLocationTime: moment().toString(),
       },
     });
-    console.log("locationData--->", locationData, Array.isArray(locationData));
     if (locationData?.length) {
       for (let i = 0; i < locationData?.length; i++) {
         //for one by one data updated
