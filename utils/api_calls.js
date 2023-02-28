@@ -126,10 +126,5 @@ exports.getLocationByGoogleApi = async (lat, long) => {
     },
   };
   const data = await promisify(request)(options);
-  console.log(JSON.parse(data.body));
   return JSON.parse(data.body);
-  // axios.get(
-  //   // `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=AIzaSyAIh5rjUYY8SoLb14LUnxrbhD2XnRsF_78`
-  //   `https://maps.googleapis.com/maps/api/geocode/json?latlng=22.7134,72.7497&key=AIzaSyAIh5rjUYY8SoLb14LUnxrbhD2XnRsF_78`
-  // );
 };

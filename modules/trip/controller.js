@@ -5,6 +5,8 @@ const Vehicle = require("../vehicle/model");
 const Organization = require("../organization/model");
 const Transporter = require("../transporter/model");
 const Plant = require("../plant/model");
+const Sequelize = require("sequelize");
+const moment = require("moment");
 const { sqquery } = require("../../utils/query");
 const { createData, deleteNumber } = require("../locationData/locationUpdate");
 const {
@@ -190,6 +192,12 @@ exports.update = async (req, res, next) => {
 exports.updateTripStatus = async (req, res, next) => {
   try {
     let carbonEmission = 0;
+    const [tripData] = await service.get({
+      id: req.params.id,
+      organizationId:
+        req?.requestor?.organizationId || req?.query?.organizationId,
+    });
+
     if (req.body.status == "2") {
       const vehicleData = await Vehicle.update(
         { allocate: "true" },
@@ -218,8 +226,11 @@ exports.updateTripStatus = async (req, res, next) => {
             req?.requestor?.organizationId || req?.query?.organizationId,
         },
       });
-      const driverNumber = `91${driverDataForCron?.mobile}`;
-      await createData(req.params.id, driverNumber);
+
+      if (tripData.type == "simBased") {
+        const driverNumber = `91${driverDataForCron?.mobile}`;
+        await createData(req.params.id, driverNumber);
+      }
     }
     if (req.body.status == "3") {
       const driverData = await Driver.update(
@@ -243,11 +254,6 @@ exports.updateTripStatus = async (req, res, next) => {
       vehicleData.allocate = "false";
       await vehicleData.save();
 
-      const [tripData] = await service.get({
-        id: req.params.id,
-        organizationId:
-          req?.requestor?.organizationId || req?.query?.organizationId,
-      });
       carbonEmission =
         vehicleData?.mileage *
           tripData?.distanceOfTrip *
@@ -261,9 +267,11 @@ exports.updateTripStatus = async (req, res, next) => {
             req?.requestor?.organizationId || req?.query?.organizationId,
         },
       });
-      const driverNumber = `91${driverDataForCron?.mobile}`;
-      console.log("driverNumber------->", driverNumber);
-      await deleteNumber(driverNumber);
+
+      if (tripData?.type == "simBased") {
+        const driverNumber = `91${driverDataForCron?.mobile}`;
+        await deleteNumber(driverNumber);
+      }
     }
     const id = req.params.id;
     req.body.carbonEmission = carbonEmission;
@@ -338,6 +346,64 @@ exports.remove = async (req, res, next) => {
       status: "success",
       message: "delete trip successfully",
       data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+exports.getClientAnalytics = async (req, res, next) => {
+  try {
+    const data = await service.get({
+      where: {
+        clientId: req.requestor.id,
+        organizationId: req.requestor.organizationId,
+        status: 3,
+        $and: Sequelize.where(
+          sequelize.fn("year", sequelize.col("createdAt")),
+          moment(new Date()).format("YYYY")
+        ),
+      },
+      group: [sequelize.fn("month", sequelize.col("createdAt"))],
+      attributes: [
+        [
+          sequelize.fn("sum", Sequelize.col("carbonEmission")),
+          "carbonEmissionSum",
+        ],
+        [sequelize.fn("avg", Sequelize.col("utilisation")), "utilisationAvg"],
+        [sequelize.fn("month", sequelize.col("createdAt")), "month"],
+        [sequelize.fn("count", Sequelize.col("id")), "count"],
+      ],
+    });
+    const onGoingTrip = await service.count({
+      where: {
+        clientId: req.requestor.id,
+        organizationId: req.requestor.organizationId,
+        status: "2",
+      },
+    });
+    const pendingTrip = await service.count({
+      where: {
+        clientId: req.requestor.id,
+        organizationId: req.requestor.organizationId,
+        status: "1",
+      },
+    });
+    const completedTrip = await service.count({
+      where: {
+        clientId: req.requestor.id,
+        organizationId: req.requestor.organizationId,
+        status: "3",
+      },
+    });
+    res.status(200).send({
+      status: 200,
+      message: "getClient Analytics  successfully",
+      data,
+      tripAnalyticsOfClient: {
+        completedTrip: completedTrip,
+        onGoingTrip: onGoingTrip,
+        pendingTrip: pendingTrip,
+      },
     });
   } catch (error) {
     next(error);
