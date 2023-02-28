@@ -303,9 +303,9 @@ exports.importApi = async (req, res, next) => {
         },
       });
       const driverNumber = `91${driverDataForCron?.mobile}`;
-      console.log("driverNumber---->", driverNumber);
+
       const auth = await authApi();
-      console.log("token--->", auth?.data?.token);
+
       const importAPi = await importApi(
         driverDataForCron.name,
         "driver",
@@ -318,7 +318,6 @@ exports.importApi = async (req, res, next) => {
           message: "Something Went Wrong in Import APi",
         });
       }
-      console.log("importApi----------->", importAPi);
       next();
     } else {
       next();
