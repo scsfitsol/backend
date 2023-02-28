@@ -21,8 +21,12 @@ const Vehicle = sequelize.define(
       type: Sequelize.STRING,
     },
     capacity: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
     },
+    co2PerKm: {
+      type: Sequelize.FLOAT,
+    },
+
     manufacture: {
       type: Sequelize.STRING,
     },
@@ -41,6 +45,7 @@ const Vehicle = sequelize.define(
 
   {
     paranoid: true,
+    alter: true,
   }
 );
 

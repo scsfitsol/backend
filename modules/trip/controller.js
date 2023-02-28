@@ -28,8 +28,8 @@ exports.create = async (req, res, next) => {
       },
     });
 
-    if (vehicleData?.capacity) {
-      req.body.utilisation = (req.body.weight / vehicleData?.capacity) * 100;
+    if (vehicleData?.capacity && vehicleData?.co2PerKm) {
+      req.body.utilisation = vehicleData?.co2PerKm / vehicleData?.capacity;
     }
     const data = await service.create(req.body);
     if (req.body.status == 2) {
