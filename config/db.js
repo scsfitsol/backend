@@ -9,7 +9,6 @@ const sequelize = new Sequelize(
   config
 );
 
-console.log(config);
 sequelize
   .sync({ logging: false })
   .then(() => {

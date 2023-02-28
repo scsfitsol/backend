@@ -23,8 +23,7 @@ exports.createData = async (tripId, driverNumber, type, vehicleId) => {
     const updateLocationTime = moment()
       .add(15, "minutes")
       .set({ second: 0, millisecond: 0 });
-    //const auth = await authApi();
-    //const token = auth?.data?.token;
+
     if (type == "simBased") {
       let location = -1;
       try {
@@ -47,7 +46,6 @@ exports.createData = async (tripId, driverNumber, type, vehicleId) => {
             ? locationData[0]?.locationResultStatusText
             : "Internal Server Error",
         });
-        console.log("data added successfully");
       } else {
         console.log("error------>", location?.data?.errorMessageList);
         // resolve();
