@@ -81,7 +81,6 @@ const Trip = sequelize.define(
 
   {
     paranoid: true,
-    alter: true,
   }
 );
 Driver.hasMany(Trip, {
