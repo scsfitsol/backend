@@ -59,8 +59,8 @@ exports.updateTripValidation = async (req, res, next) => {
 exports.updateTripStatusValidation = async (req, res, next) => {
   try {
     const tripSchema = yup.object().shape({
-      vehicleId: yup.number().required("vehicleId is required field"),
-      driverId: yup.number().required("driver id is required field"),
+      vehicleId: yup.number(),
+      driverId: yup.number(),
       status: yup.string().required("status is required field"),
     });
     await tripSchema.validate(req.body);
