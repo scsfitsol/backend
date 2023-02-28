@@ -35,7 +35,7 @@ router.patch(
   "/updateMe",
   cpUpload,
   auth.authMiddleware,
-  auth.restrictTo("admin,superAdmin"),
+  auth.restrictTo("admin", "superAdmin"),
   updateMe
 );
 router.get(
