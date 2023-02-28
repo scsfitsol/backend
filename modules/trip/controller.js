@@ -193,9 +193,11 @@ exports.updateTripStatus = async (req, res, next) => {
   try {
     let carbonEmission = 0;
     const [tripData] = await service.get({
-      id: req.params.id,
-      organizationId:
-        req?.requestor?.organizationId || req?.query?.organizationId,
+      where: {
+        id: req.params.id,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
+      },
     });
 
     if (req.body.status == "2") {
@@ -203,7 +205,7 @@ exports.updateTripStatus = async (req, res, next) => {
         { allocate: "true" },
         {
           where: {
-            id: req.body.vehicleId,
+            id: tripData?.vehicleId,
             organizationId:
               req?.requestor?.organizationId || req?.query?.organizationId,
           },
@@ -213,7 +215,7 @@ exports.updateTripStatus = async (req, res, next) => {
         { allocate: "true" },
         {
           where: {
-            id: req.body.driverId,
+            id: tripData?.driverId,
             organizationId:
               req?.requestor?.organizationId || req?.query?.organizationId,
           },
@@ -221,7 +223,7 @@ exports.updateTripStatus = async (req, res, next) => {
       );
       const driverDataForCron = await Driver.findOne({
         where: {
-          id: req.body.driverId,
+          id: tripData?.driverId,
           organizationId:
             req?.requestor?.organizationId || req?.query?.organizationId,
         },
@@ -237,7 +239,7 @@ exports.updateTripStatus = async (req, res, next) => {
         { allocate: "false" },
         {
           where: {
-            id: req.body.driverId,
+            id: tripData?.driverId,
             organizationId:
               req?.requestor?.organizationId || req?.query?.organizationId,
           },
@@ -246,7 +248,7 @@ exports.updateTripStatus = async (req, res, next) => {
 
       const vehicleData = await Vehicle.findOne({
         where: {
-          id: req.body.vehicleId,
+          id: tripData?.vehicleId,
           organizationId:
             req?.requestor?.organizationId || req?.query?.organizationId,
         },
@@ -262,7 +264,7 @@ exports.updateTripStatus = async (req, res, next) => {
 
       const driverDataForCron = await Driver.findOne({
         where: {
-          id: req.body.driverId,
+          id: tripData?.driverId,
           organizationId:
             req?.requestor?.organizationId || req?.query?.organizationId,
         },

@@ -45,7 +45,6 @@ const Vehicle = sequelize.define(
 
   {
     paranoid: true,
-    alter: true,
   }
 );
 
