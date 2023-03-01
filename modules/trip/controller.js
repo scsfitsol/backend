@@ -314,6 +314,7 @@ exports.importApi = async (req, res, next) => {
         driverNumber,
         auth?.data?.token
       );
+
       if (res?.status === 501) {
         es.status(501).send({
           status: "fail",
