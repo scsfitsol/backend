@@ -18,7 +18,6 @@ const Plant = sequelize.define(
     },
     GST: {
       type: Sequelize.STRING,
-      allowNull: false,
     },
     location: {
       type: Sequelize.STRING,
@@ -27,6 +26,7 @@ const Plant = sequelize.define(
 
   {
     paranoid: true,
+    alter: true,
   }
 );
 
