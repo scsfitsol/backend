@@ -26,7 +26,6 @@ const Plant = sequelize.define(
 
   {
     paranoid: true,
-    alter: true,
   }
 );
 
