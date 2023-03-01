@@ -114,6 +114,9 @@ exports.getMe = async (req, res, next) => {
 };
 exports.updateMe = async (req, res, next) => {
   try {
+    if (req.body.email) {
+      return next(createError(401, "email can't be update"));
+    }
     if (req.files) {
       if (req?.files["panCard"]) {
         req.body.panCard = req.files["panCard"][0]["location"];
