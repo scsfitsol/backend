@@ -3,7 +3,7 @@ exports.plantValidation = async (req, res, next) => {
   try {
     const transporterSchema = yup.object().shape({
       unitName: yup.string(),
-      GST: yup.string().required("GST number is required"),
+      GST: yup.string(),
       clientId: yup.number().required("client id is required field"),
       location: yup.string(),
     });
