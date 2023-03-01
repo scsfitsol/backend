@@ -26,7 +26,9 @@ const Vehicle = sequelize.define(
     co2PerKm: {
       type: Sequelize.FLOAT,
     },
-
+    length: {
+      type: Sequelize.FLOAT,
+    },
     manufacture: {
       type: Sequelize.STRING,
     },
@@ -45,6 +47,7 @@ const Vehicle = sequelize.define(
 
   {
     paranoid: true,
+    alter: true,
   }
 );
 

@@ -8,7 +8,7 @@ exports.authApi = () =>
     headers: {
       Authorization: `Basic Zml0c29sOkZpdHNvbEAxMjM0NQ==`,
     },
-  });
+  }); 
 exports.locationApi = async (driverNumber) => {
   if (token.token == "") {
     const auth = await this.authApi();
