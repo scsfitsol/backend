@@ -8,7 +8,7 @@ exports.authApi = () =>
     headers: {
       Authorization: `Basic Zml0c29sOkZpdHNvbEAxMjM0NQ==`,
     },
-  }); 
+  });
 exports.locationApi = async (driverNumber) => {
   if (token.token == "") {
     const auth = await this.authApi();
@@ -88,29 +88,34 @@ var config = {
 };
 exports.consentAuthApi = () => axios(config);
 
-// axios.post(
-//   `https://india-agw.telenity.com/oauth/token?grant_type=client_credentials`,
-//   {
-//     headers: {
-//       Authorization: "Basic c21hcnR0cmFpbGNsb3VkOnNtYXJ0dHJhaWxjbG91ZA==",
-//       Accept: "*/*",
-//       "Content-Type": "application/x-www-form-urlencoded",
-//       Host: "india-agw.telenity.com",
-//     },
-//   }
-// );
-exports.consentApi = (driverNumber, token) =>
-  axios.get(
-    `https://india-agw.telenity.com/apigw/NOFBconsent/v1/NOFBconsent?address=tel:+91${driverNumber}`,
-    {
-      headers: {
-        Host: "india-agw.telenity.com",
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-        "User-Agent": "curl/7.50.3",
-      },
-    }
-  );
+exports.consentApi = async (driverNumber) => {
+  if (token.consentToken == "") {
+    const auth = await this.consentAuthApi();
+
+    token.consentToken = auth?.data?.access_token;
+  }
+
+  return axios
+    .get(
+      `https://india-agw.telenity.com/apigw/NOFBconsent/v1/NOFBconsent?address=tel:+91${driverNumber}`,
+      {
+        headers: {
+          Host: "india-agw.telenity.com",
+          Authorization: `Bearer ${token.consentToken}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    )
+    .catch(async (reason) => {
+      if (reason?.response?.status === 401) {
+        token.consentToken = "";
+        await this.consentApi(driverNumber);
+      } else {
+        // Handle else
+      }
+      console.log(reason?.message);
+    });
+};
 
 exports.getDataApi = () =>
   axios.get(
