@@ -18,7 +18,7 @@ exports.driverValidation = async (req, res, next) => {
   } catch (error) {
     res.status(400).json({
       success: false,
-      errors: error.errors[0],
+      message: error.errors[0],
     });
   }
 };
@@ -41,7 +41,7 @@ exports.updateDriverValidation = async (req, res, next) => {
   } catch (error) {
     res.status(400).json({
       success: false,
-      errors: error.errors[0],
+      message: error.errors[0],
     });
   }
 };
