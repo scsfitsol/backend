@@ -25,7 +25,7 @@ exports.tripValidation = async (req, res, next) => {
   } catch (error) {
     res.status(400).json({
       success: false,
-      errors: error.errors[0],
+      message: error.errors[0],
     });
   }
 };
@@ -52,7 +52,7 @@ exports.updateTripValidation = async (req, res, next) => {
   } catch (error) {
     res.status(400).json({
       success: false,
-      errors: error.errors[0],
+      message: error.errors[0],
     });
   }
 };
@@ -68,7 +68,7 @@ exports.updateTripStatusValidation = async (req, res, next) => {
   } catch (error) {
     res.status(400).json({
       success: false,
-      errors: error.errors[0],
+      message: error.errors[0],
     });
   }
 };

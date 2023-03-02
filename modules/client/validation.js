@@ -14,7 +14,7 @@ exports.clientValidation = async (req, res, next) => {
   } catch (error) {
     res.status(400).json({
       success: false,
-      errors: error.errors[0],
+      message: error.errors[0],
     });
   }
 };
@@ -30,7 +30,7 @@ exports.updateClientValidation = async (req, res, next) => {
   } catch (error) {
     res.status(400).json({
       success: false,
-      errors: error.errors[0],
+      message: error.errors[0],
     });
   }
 };
@@ -49,7 +49,7 @@ exports.loginValidation = async (req, res, next) => {
   } catch (error) {
     res.status(400).json({
       success: false,
-      errors: error.errors[0],
+      message: error.errors[0],
     });
   }
 };
@@ -66,7 +66,7 @@ exports.forgotPasswordValidation = async (req, res, next) => {
   } catch (error) {
     res.status(400).json({
       success: false,
-      errors: error.errors[0],
+      message: error.errors[0],
     });
   }
 };
