@@ -89,11 +89,8 @@ var config = {
 exports.consentAuthApi = () => axios(config);
 
 exports.consentApi = async (driverNumber) => {
-  if (token.consentToken == "") {
-    const auth = await this.consentAuthApi();
-
-    token.consentToken = auth?.data?.access_token;
-  }
+  const auth = await this.consentAuthApi();
+  const token = auth?.data?.access_token;
 
   return axios
     .get(
@@ -101,18 +98,12 @@ exports.consentApi = async (driverNumber) => {
       {
         headers: {
           Host: "india-agw.telenity.com",
-          Authorization: `Bearer ${token.consentToken}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/x-www-form-urlencoded",
         },
       }
     )
     .catch(async (reason) => {
-      if (reason?.response?.status === 401) {
-        token.consentToken = "";
-        await this.consentApi(driverNumber);
-      } else {
-        // Handle else
-      }
       console.log(reason?.message);
     });
 };
