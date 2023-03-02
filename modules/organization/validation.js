@@ -14,7 +14,7 @@ exports.organizationValidation = async (req, res, next) => {
   } catch (error) {
     res.status(400).json({
       success: false,
-      errors: error.errors[0],
+      message: error.errors[0],
     });
   }
 };
@@ -30,7 +30,7 @@ exports.updateOrganizationValidation = async (req, res, next) => {
   } catch (error) {
     res.status(400).json({
       success: false,
-      errors: error.errors[0],
+      message: error.errors[0],
     });
   }
 };
