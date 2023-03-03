@@ -43,6 +43,12 @@ router.use(
   require("../modules/analysis")
 );
 router.use(
+  "/clientAnalytics",
+  auth.authMiddleware,
+  auth.restrictTo("client"),
+  require("../modules/clientAnalysis")
+);
+router.use(
   "/location",
   auth.authMiddleware,
   auth.restrictTo("client", "admin", "superAdmin"),
