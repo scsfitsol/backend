@@ -4,17 +4,35 @@ const Client = require("../client/model");
 const Plant = require("../plant/model");
 const Trip = require("../trip/model");
 const Transporter = require("../transporter/model");
-const sequelize = require("../../config/db");
 const Sequelize = require("sequelize");
 const { Op } = require("sequelize");
 const moment = require("moment");
+const sequelize = require("sequelize");
 
 exports.getAll = async (req, res, next) => {
   try {
-    let startDate = moment().subtract(30, "days");
+    const { startDate, endDate } = req.query;
+    const dateFilter = {};
+
+    if (startDate) {
+      const newStartDate = new Date(startDate);
+      const newEndDate = endDate ? new Date(endDate) : new Date();
+      dateFilter.createdAt = {
+        [sequelize.Op.gte]: newStartDate,
+        [sequelize.Op.lt]: moment(newEndDate).add(1, "days"),
+      };
+    } else {
+      const currentYear = moment(new Date()).format("YYYY");
+
+      dateFilter.createdAt = {
+        [sequelize.Op.gte]: `${currentYear}-01-01`,
+        [sequelize.Op.lte]: moment(`${currentYear}-12-31`).add(1, "days"),
+      };
+    }
+    let startingDate = moment().subtract(30, "days");
     let dataFilter = {
       createdAt: {
-        [Op.gte]: new Date(startDate),
+        [Op.gte]: new Date(startingDate),
         [Op.lte]: moment(new Date()).add(1, "days"),
       },
       organizationId:
@@ -22,7 +40,7 @@ exports.getAll = async (req, res, next) => {
     };
     let dataFilterTripCompleted = {
       createdAt: {
-        [Op.gte]: new Date(startDate),
+        [Op.gte]: new Date(startingDate),
         [Op.lte]: moment(new Date()).add(1, "days"),
       },
       organizationId:
@@ -34,6 +52,7 @@ exports.getAll = async (req, res, next) => {
       where: {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
+        createdAt: dateFilter.createdAt,
       },
     });
 
@@ -45,6 +64,7 @@ exports.getAll = async (req, res, next) => {
       where: {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
+        createdAt: dateFilter.createdAt,
       },
     });
     const last30DaysClient = await Client.count({
@@ -54,6 +74,7 @@ exports.getAll = async (req, res, next) => {
       where: {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
+        createdAt: dateFilter.createdAt,
       },
     });
     const last30DaysPlant = await Plant.count({
@@ -63,6 +84,7 @@ exports.getAll = async (req, res, next) => {
       where: {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
+        createdAt: dateFilter.createdAt,
       },
     });
     const last30DaysVehicle = await Vehicle.count({
@@ -73,6 +95,7 @@ exports.getAll = async (req, res, next) => {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
         allocate: "true",
+        createdAt: dateFilter.createdAt,
       },
     });
     const freeVehicle = await Vehicle.count({
@@ -80,6 +103,7 @@ exports.getAll = async (req, res, next) => {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
         allocate: "false",
+        createdAt: dateFilter.createdAt,
       },
     });
 
@@ -88,6 +112,7 @@ exports.getAll = async (req, res, next) => {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
         status: 3,
+        createdAt: dateFilter.createdAt,
       },
     });
 
@@ -102,6 +127,7 @@ exports.getAll = async (req, res, next) => {
         targetedDateAndTime: {
           [Op.eq]: Sequelize.col("completedDateAndTime"),
         },
+        createdAt: dateFilter.createdAt,
       },
     });
 
@@ -113,6 +139,7 @@ exports.getAll = async (req, res, next) => {
         targetedDateAndTime: {
           [Op.lt]: Sequelize.col("completedDateAndTime"),
         },
+        createdAt: dateFilter.createdAt,
       },
     });
     const totalEarlyTrip = await Trip.count({
@@ -123,11 +150,15 @@ exports.getAll = async (req, res, next) => {
         targetedDateAndTime: {
           [Op.gt]: Sequelize.col("completedDateAndTime"),
         },
+        createdAt: dateFilter.createdAt,
       },
     });
     const tripAnalytics = await Trip.findAll({
       where: {
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
         status: 3,
+        createdAt: dateFilter.createdAt,
       },
       attributes: [
         [
@@ -173,6 +204,7 @@ exports.getAll = async (req, res, next) => {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
         status: 3,
+        createdAt: dateFilter.createdAt,
       },
       group: "clientId",
       include: [
@@ -209,6 +241,7 @@ exports.getAll = async (req, res, next) => {
       where: {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
+        createdAt: dateFilter.createdAt,
       },
     });
     const last30DaysTransporter = await Transporter.count({
@@ -219,6 +252,7 @@ exports.getAll = async (req, res, next) => {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
         status: 3,
+        createdAt: dateFilter.createdAt,
       },
       group: ["transporterId"],
       include: [
@@ -246,6 +280,7 @@ exports.getAll = async (req, res, next) => {
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
         status: 3,
+        createdAt: dateFilter.createdAt,
       },
       group: ["plantId"],
       include: [
@@ -280,6 +315,7 @@ exports.getAll = async (req, res, next) => {
               targetedDateAndTime: {
                 [Op.lt]: Sequelize.col("completedDateAndTime"),
               },
+              createdAt: dateFilter.createdAt,
             },
           });
           const LateTransporterTrip = await Trip.count({
@@ -291,6 +327,7 @@ exports.getAll = async (req, res, next) => {
               targetedDateAndTime: {
                 [Op.gt]: Sequelize.col("completedDateAndTime"),
               },
+              createdAt: dateFilter.createdAt,
             },
           });
           const EqualTransporterTrip = await Trip.count({
@@ -302,6 +339,7 @@ exports.getAll = async (req, res, next) => {
               targetedDateAndTime: {
                 [Op.eq]: Sequelize.col("completedDateAndTime"),
               },
+              createdAt: dateFilter.createdAt,
             },
           });
           return resolve({
@@ -333,6 +371,7 @@ exports.getAll = async (req, res, next) => {
                 targetedDateAndTime: {
                   [Op.lt]: Sequelize.col("completedDateAndTime"),
                 },
+                createdAt: dateFilter.createdAt,
               },
             });
             const LatePlantTrip = await Trip.count({
@@ -344,6 +383,7 @@ exports.getAll = async (req, res, next) => {
                 targetedDateAndTime: {
                   [Op.gt]: Sequelize.col("completedDateAndTime"),
                 },
+                createdAt: dateFilter.createdAt,
               },
             });
             const EqualPlantTrip = await Trip.count({
@@ -355,6 +395,7 @@ exports.getAll = async (req, res, next) => {
                 targetedDateAndTime: {
                   [Op.eq]: Sequelize.col("completedDateAndTime"),
                 },
+                createdAt: dateFilter.createdAt,
               },
             });
             return resolve({
