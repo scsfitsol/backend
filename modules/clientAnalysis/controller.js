@@ -230,23 +230,25 @@ exports.getAll = async (req, res, next) => {
     res.status(200).send({
       status: 200,
       message: "getClient Analytics  successfully",
-      data,
-      tripAnalyticsOfClient: {
-        totalTrip: totalTrip,
-        completedTrip: completedTrip,
-        onGoingTrip: onGoingTrip,
-        pendingTrip: pendingTrip,
-        totalEarlyTrip,
-        totalOnTimeTrip,
-        totalLateTrip,
-      },
-      plantAnalytics: {
-        totalPlant: totalPlant,
-        listOfPlant,
-      },
-      transporterAnalytics: {
-        listOfTransporter,
-        filterTransporter,
+      data: {
+        clientAnalyticsMonthWise: data,
+        tripAnalyticsOfClient: {
+          totalTrip: totalTrip,
+          completedTrip: completedTrip,
+          onGoingTrip: onGoingTrip,
+          pendingTrip: pendingTrip,
+          totalEarlyTrip,
+          totalOnTimeTrip,
+          totalLateTrip,
+        },
+        plantAnalytics: {
+          totalPlant: totalPlant,
+          listOfPlant,
+        },
+        transporterAnalytics: {
+          listOfTransporter,
+          filterTransporter,
+        },
       },
     });
   } catch (error) {
