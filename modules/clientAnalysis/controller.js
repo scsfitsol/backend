@@ -7,6 +7,7 @@ const Transporter = require("../transporter/model");
 const Sequelize = require("sequelize");
 const { Op } = require("sequelize");
 const moment = require("moment");
+const { sqquery } = require("../../utils/query");
 const sequelize = require("sequelize");
 
 exports.getAll = async (req, res, next) => {
@@ -15,22 +16,16 @@ exports.getAll = async (req, res, next) => {
 
     const { startDate, endDate } = req.query;
     const dateFilter = {};
-
-    if (startDate) {
-      const newStartDate = new Date(startDate);
-      const newEndDate = endDate ? new Date(endDate) : new Date();
-      dateFilter.createdAt = {
-        [sequelize.Op.gte]: newStartDate,
-        [sequelize.Op.lt]: moment(newEndDate).add(1, "days"),
+    let query = {};
+    if (startDate && endDate)
+      query = {
+        createdAt: {
+          [Op.between]: [
+            moment(startDate).utcOffset("+05:30"),
+            moment(endDate).utcOffset("+05:30"),
+          ],
+        },
       };
-    } else {
-      const currentYear = moment(new Date()).format("YYYY");
-
-      dateFilter.createdAt = {
-        [sequelize.Op.gte]: `${currentYear}-01-01`,
-        [sequelize.Op.lte]: moment(`${currentYear}-12-31`).add(1, "days"),
-      };
-    }
 
     const data = await Trip.findAll({
       where: {
@@ -56,16 +51,17 @@ exports.getAll = async (req, res, next) => {
 
     const onGoingTrip = await Trip.count({
       where: {
-        createdAt: dateFilter.createdAt,
+        ...query,
         clientId: req.requestor.id,
         organizationId: req.requestor.organizationId,
         status: "2",
       },
+      //
     });
 
     const pendingTrip = await Trip.count({
       where: {
-        createdAt: dateFilter.createdAt,
+        ...query,
         clientId: req.requestor.id,
         organizationId: req.requestor.organizationId,
         status: "1",
@@ -73,7 +69,7 @@ exports.getAll = async (req, res, next) => {
     });
     const completedTrip = await Trip.count({
       where: {
-        createdAt: dateFilter.createdAt,
+        ...query,
         clientId: req.requestor.id,
         organizationId: req.requestor.organizationId,
         status: "3",
@@ -81,14 +77,14 @@ exports.getAll = async (req, res, next) => {
     });
     const totalTrip = await Trip.count({
       where: {
-        createdAt: dateFilter.createdAt,
+        ...query,
         clientId: req.requestor.id,
         organizationId: req.requestor.organizationId,
       },
     });
     const totalOnTimeTrip = await Trip.count({
       where: {
-        createdAt: dateFilter.createdAt,
+        ...query,
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
         status: 3,
@@ -101,7 +97,7 @@ exports.getAll = async (req, res, next) => {
 
     const totalLateTrip = await Trip.count({
       where: {
-        createdAt: dateFilter.createdAt,
+        ...query,
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
         status: 3,
@@ -113,7 +109,7 @@ exports.getAll = async (req, res, next) => {
     });
     const totalEarlyTrip = await Trip.count({
       where: {
-        createdAt: dateFilter.createdAt,
+        ...query,
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
         status: 3,
@@ -125,14 +121,14 @@ exports.getAll = async (req, res, next) => {
     });
     const totalPlant = await Plant.count({
       where: {
-        createdAt: dateFilter.createdAt,
+        ...query,
         clientId: req.requestor.id,
         organizationId: req.requestor.organizationId,
       },
     });
     const listOfTransporter = await Trip.findAll({
       where: {
-        createdAt: dateFilter.createdAt,
+        ...query,
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
         status: 3,
@@ -162,7 +158,7 @@ exports.getAll = async (req, res, next) => {
     });
     const listOfPlant = await Trip.findAll({
       where: {
-        createdAt: dateFilter.createdAt,
+        ...query,
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
         status: 3,
@@ -199,7 +195,7 @@ exports.getAll = async (req, res, next) => {
     }
     const filterTransporter = await Trip.findAll({
       where: {
-        createdAt: dateFilter.createdAt,
+        ...query,
         organizationId:
           req?.requestor?.organizationId || req?.query?.organizationId,
         status: 3,
