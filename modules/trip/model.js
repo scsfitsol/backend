@@ -77,10 +77,25 @@ const Trip = sequelize.define(
       defaultValue: "simBased",
       allowNull: false,
     },
+    invoiceNumber: {
+      type: Sequelize.STRING,
+    },
+    mode: {
+      type: Sequelize.ENUM("road", "train", "air"),
+      defaultValue: "road",
+      allowNull: false,
+    },
+    gstCharges: {
+      type: Sequelize.STRING,
+    },
+    fleetCharges: {
+      type: Sequelize.STRING,
+    },
   },
 
   {
     paranoid: true,
+    alter: true,
   }
 );
 Driver.hasMany(Trip, {
