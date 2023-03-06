@@ -22,6 +22,11 @@ const Client = sequelize.define(
       isEmail: true,
       unique: true,
     },
+    countryCode: {
+      type: Sequelize.STRING,
+      defaultValue: "+91",
+      allowNull: false,
+    },
     password: {
       type: Sequelize.STRING,
       allowNull: false,
@@ -35,8 +40,16 @@ const Client = sequelize.define(
     profilePic: {
       type: Sequelize.STRING,
     },
+    mobile: {
+      type: Sequelize.BIGINT,
+    },
+    insuranceNumber: {
+      type: Sequelize.STRING,
+    },
   },
   {
+    paranoid: true,
+    alter: true,
     hooks: {
       beforeCreate: (Client) => {
         const salt = bcrypt.genSaltSync();
