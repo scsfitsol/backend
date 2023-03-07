@@ -14,7 +14,7 @@ exports.tripValidation = async (req, res, next) => {
       completedDateAndTime: yup.string(),
       status: yup.mixed(["1", "2", "3"]),
       carbonEmitted: yup.string(),
-      vehicleId: yup.number().required("vehicle id is required field"),
+      vehicleId: yup.number(),
       driverId: yup.number().required("driver id is required field"),
       clientId: yup.number(),
       transporterId: yup.number(),

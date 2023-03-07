@@ -21,6 +21,19 @@ exports.create = async (req, res, next) => {
   try {
     req.body.organizationId =
       req?.requestor?.organizationId || req?.query?.organizationId;
+
+    let vehicle;
+
+    if (!req.body.vehicleId) {
+      if (req.body.vehicleRegistrationNumber) {
+        vehicle = await Vehicle.create({
+          registrationNumber: req.body.vehicleRegistrationNumber,
+          organizationId:
+            req?.requestor?.organizationId || req?.query?.organizationId,
+        });
+        req.body.vehicleId = vehicle.id;
+      }
+    }
     const [vehicleData] = await Vehicle.findAll({
       where: {
         id: req.body.vehicleId,
@@ -32,6 +45,15 @@ exports.create = async (req, res, next) => {
     if (vehicleData?.capacity && vehicleData?.co2PerKm) {
       req.body.utilisation = vehicleData?.co2PerKm / vehicleData?.capacity;
     }
+    const clientData = await Client.findOne({
+      where: {
+        id: req.body.clientId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
+      },
+    });
+    req.body.insuranceNumber = clientData?.insuranceNumber;
+
     const data = await service.create(req.body);
     if (req.body.status == 2) {
       const vehicleData = await Vehicle.update(

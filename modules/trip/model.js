@@ -77,6 +77,9 @@ const Trip = sequelize.define(
       defaultValue: "simBased",
       allowNull: false,
     },
+    insuranceNumber: {
+      type: Sequelize.STRING,
+    },
     invoiceNumber: {
       type: Sequelize.STRING,
     },
@@ -95,6 +98,7 @@ const Trip = sequelize.define(
 
   {
     paranoid: true,
+    alter: true,
   }
 );
 Driver.hasMany(Trip, {
