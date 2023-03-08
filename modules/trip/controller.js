@@ -21,6 +21,19 @@ exports.create = async (req, res, next) => {
   try {
     req.body.organizationId =
       req?.requestor?.organizationId || req?.query?.organizationId;
+
+    let vehicle;
+
+    if (!req.body.vehicleId) {
+      if (req.body.vehicleRegistrationNumber) {
+        vehicle = await Vehicle.create({
+          registrationNumber: req.body.vehicleRegistrationNumber,
+          organizationId:
+            req?.requestor?.organizationId || req?.query?.organizationId,
+        });
+        req.body.vehicleId = vehicle.id;
+      }
+    }
     const [vehicleData] = await Vehicle.findAll({
       where: {
         id: req.body.vehicleId,
@@ -32,6 +45,15 @@ exports.create = async (req, res, next) => {
     if (vehicleData?.capacity && vehicleData?.co2PerKm) {
       req.body.utilisation = vehicleData?.co2PerKm / vehicleData?.capacity;
     }
+    const clientData = await Client.findOne({
+      where: {
+        id: req.body.clientId,
+        organizationId:
+          req?.requestor?.organizationId || req?.query?.organizationId,
+      },
+    });
+    req.body.insuranceNumber = clientData?.insuranceNumber;
+
     const data = await service.create(req.body);
     if (req.body.status == 2) {
       const vehicleData = await Vehicle.update(
@@ -349,250 +371,6 @@ exports.remove = async (req, res, next) => {
       status: "success",
       message: "delete trip successfully",
       data,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-exports.getClientAnalytics = async (req, res, next) => {
-  try {
-    let transporterIds;
-
-    const { startDate, endDate } = req.query;
-    const dateFilter = {};
-
-    if (startDate) {
-      const newStartDate = new Date(startDate);
-      const newEndDate = endDate ? new Date(endDate) : new Date();
-      dateFilter.createdAt = {
-        [sequelize.Op.gte]: newStartDate,
-        [sequelize.Op.lt]: moment(newEndDate).add(1, "days"),
-      };
-    } else {
-      const currentYear = moment(new Date()).format("YYYY");
-      dateFilter.createdAt = {
-        [sequelize.Op.gte]: `${currentYear}-01-01`,
-        [sequelize.Op.lte]: moment(`${currentYear}-12-31`).add(1, "days"),
-      };
-    }
-
-    const data = await service.get({
-      where: {
-        clientId: req.requestor.id,
-        organizationId: req.requestor.organizationId,
-        status: 3,
-        $and: Sequelize.where(
-          sequelize.fn("year", sequelize.col("createdAt")),
-          moment(new Date()).format("YYYY")
-        ),
-      },
-      group: [sequelize.fn("month", sequelize.col("createdAt"))],
-      attributes: [
-        [
-          sequelize.fn("sum", Sequelize.col("carbonEmission")),
-          "carbonEmissionSum",
-        ],
-        [sequelize.fn("avg", Sequelize.col("utilisation")), "utilisationAvg"],
-        [sequelize.fn("month", sequelize.col("createdAt")), "month"],
-        [sequelize.fn("count", Sequelize.col("id")), "count"],
-      ],
-    });
-
-    const onGoingTrip = await service.count({
-      where: {
-        createdAt: dateFilter.createdAt,
-        clientId: req.requestor.id,
-        organizationId: req.requestor.organizationId,
-        status: "2",
-      },
-    });
-
-    const pendingTrip = await service.count({
-      where: {
-        createdAt: dateFilter.createdAt,
-        clientId: req.requestor.id,
-        organizationId: req.requestor.organizationId,
-        status: "1",
-      },
-    });
-    const completedTrip = await service.count({
-      where: {
-        createdAt: dateFilter.createdAt,
-        clientId: req.requestor.id,
-        organizationId: req.requestor.organizationId,
-        status: "3",
-      },
-    });
-    const totalTrip = await service.count({
-      where: {
-        createdAt: dateFilter.createdAt,
-        clientId: req.requestor.id,
-        organizationId: req.requestor.organizationId,
-      },
-    });
-    const totalOnTimeTrip = await service.count({
-      where: {
-        createdAt: dateFilter.createdAt,
-        organizationId:
-          req?.requestor?.organizationId || req?.query?.organizationId,
-        status: 3,
-        clientId: req.requestor.id,
-        targetedDateAndTime: {
-          [Op.eq]: Sequelize.col("completedDateAndTime"),
-        },
-      },
-    });
-
-    const totalLateTrip = await service.count({
-      where: {
-        createdAt: dateFilter.createdAt,
-        organizationId:
-          req?.requestor?.organizationId || req?.query?.organizationId,
-        status: 3,
-        clientId: req.requestor.id,
-        targetedDateAndTime: {
-          [Op.lt]: Sequelize.col("completedDateAndTime"),
-        },
-      },
-    });
-    const totalEarlyTrip = await service.count({
-      where: {
-        createdAt: dateFilter.createdAt,
-        organizationId:
-          req?.requestor?.organizationId || req?.query?.organizationId,
-        status: 3,
-        clientId: req.requestor.id,
-        targetedDateAndTime: {
-          [Op.gt]: Sequelize.col("completedDateAndTime"),
-        },
-      },
-    });
-    const totalPlant = await Plant.count({
-      where: {
-        createdAt: dateFilter.createdAt,
-        clientId: req.requestor.id,
-        organizationId: req.requestor.organizationId,
-      },
-    });
-    const listOfTransporter = await service.get({
-      where: {
-        createdAt: dateFilter.createdAt,
-        organizationId:
-          req?.requestor?.organizationId || req?.query?.organizationId,
-        status: 3,
-        clientId: req.requestor.id,
-      },
-      group: ["transporterId"],
-      include: [
-        {
-          model: Transporter,
-          required: false,
-          attributes: [
-            "id",
-            "transporterName",
-            [Sequelize.fn("count", Sequelize.col("transporterId")), "count"],
-            [
-              Sequelize.fn("sum", Sequelize.col("carbonEmission")),
-              "carbonEmissionSum",
-            ],
-            [
-              Sequelize.fn("avg", Sequelize.col("utilisation")),
-              "utilisationAvg",
-            ],
-          ],
-        },
-      ],
-      attributes: ["transporterId"],
-    });
-    const listOfPlant = await service.get({
-      where: {
-        createdAt: dateFilter.createdAt,
-        organizationId:
-          req?.requestor?.organizationId || req?.query?.organizationId,
-        status: 3,
-        clientId: req.requestor.id,
-      },
-      group: ["plantId"],
-      include: [
-        {
-          model: Plant,
-          required: false,
-          attributes: [
-            "id",
-            "unitName",
-            [Sequelize.fn("count", Sequelize.col("plantId")), "count"],
-            [
-              Sequelize.fn("sum", Sequelize.col("carbonEmission")),
-              "carbonEmissionSum",
-            ],
-            [
-              Sequelize.fn("avg", Sequelize.col("utilisation")),
-              "utilisationAvg",
-            ],
-          ],
-        },
-      ],
-      attributes: ["plantId"],
-    });
-    if (req.query.transporterId) {
-      transporterIds = JSON.parse(req.query.transporterId);
-      console.log("transporterIds-->", transporterIds[0]);
-    } else {
-      transporterIds = listOfTransporter.map(
-        (transporter) => transporter.transporterId
-      );
-    }
-    const filterTransporter = await service.get({
-      where: {
-        createdAt: dateFilter.createdAt,
-        organizationId:
-          req?.requestor?.organizationId || req?.query?.organizationId,
-        status: 3,
-        clientId: req.requestor.id,
-        transporterId: {
-          [Op.or]: transporterIds,
-        },
-      },
-      include: [
-        {
-          model: Transporter,
-          required: false,
-          attributes: [
-            [Sequelize.fn("count", Sequelize.col("transporterId")), "count"],
-            [
-              Sequelize.fn("sum", Sequelize.col("carbonEmission")),
-              "carbonEmissionSum",
-            ],
-            [
-              Sequelize.fn("avg", Sequelize.col("utilisation")),
-              "utilisationAvg",
-            ],
-          ],
-        },
-      ],
-      attributes: ["clientId"],
-    });
-    res.status(200).send({
-      status: 200,
-      message: "getClient Analytics  successfully",
-      data,
-      tripAnalyticsOfClient: {
-        totalTrip: totalTrip,
-        completedTrip: completedTrip,
-        onGoingTrip: onGoingTrip,
-        pendingTrip: pendingTrip,
-        totalEarlyTrip,
-        totalOnTimeTrip,
-        totalLateTrip,
-      },
-      plantAnalytics: {
-        totalPlant: totalPlant,
-        listOfPlant,
-      },
-      transporterAnalytics: {
-        listOfTransporter,
-        filterTransporter,
-      },
     });
   } catch (error) {
     next(error);

@@ -49,7 +49,6 @@ const Client = sequelize.define(
   },
   {
     paranoid: true,
-    alter: true,
     hooks: {
       beforeCreate: (Client) => {
         const salt = bcrypt.genSaltSync();
