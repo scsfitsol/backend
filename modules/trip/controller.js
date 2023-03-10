@@ -23,8 +23,7 @@ exports.create = async (req, res, next) => {
       req?.requestor?.organizationId || req?.query?.organizationId;
 
     let vehicle;
-
-    if (!req.body.vehicleId) {
+    if (!req.body.vehicleId || req.body.vehicleId === null) {
       if (req.body.vehicleRegistrationNumber) {
         vehicle = await Vehicle.create({
           registrationNumber: req.body.vehicleRegistrationNumber,
