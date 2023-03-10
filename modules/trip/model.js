@@ -94,6 +94,9 @@ const Trip = sequelize.define(
     fleetCharges: {
       type: Sequelize.STRING,
     },
+    consigneeName: {
+      type: Sequelize.STRING,
+    },
   },
 
   {
