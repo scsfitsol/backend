@@ -143,21 +143,33 @@ exports.getAll = async (req, res, next) => {
     const { startDate, endDate } = req.query;
     const dateFilter = {};
 
-    if (startDate) {
+    if (startDate && endDate) {
+      console.log("in if---->");
       const newStartDate = new Date(startDate);
-      const newEndDate = endDate ? new Date(endDate) : new Date();
+      const newEndDate = moment(new Date(endDate)).add(1, "days");
       dateFilter.createdAt = {
-        [sequelize.Op.gte]: newStartDate,
-        [sequelize.Op.lt]: newEndDate,
+        [Op.between]: [newStartDate, newEndDate],
       };
-      req.query.createdAt = dateFilter;
+      delete req.query.startDate;
+      delete req.query.endDate;
     }
 
-    delete req.query.startDate;
-    delete req.query.endDate;
+    const {
+      where: sqWhere,
+      order: sqOrder,
+      limit: sqLimit,
+      offset: sqOffset,
+    } = sqquery(req.query);
 
     const data = await service.get({
-      ...sqquery(req.query),
+      where: {
+        ...dateFilter,
+        ...sqWhere,
+      },
+      order: sqOrder,
+      limit: sqLimit,
+      offset: sqOffset,
+
       include: [
         {
           model: Organization,
